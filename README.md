@@ -86,7 +86,7 @@ window.dispatchEvent(new CustomEvent('open-wiremodal',  { detail: { name: 'edit-
 window.dispatchEvent(new CustomEvent('close-wiremodal', { detail: 'confirm-delete' }));
 ```
 
-Legacy event names `open-modal` / `close-modal` are accepted too — useful when migrating from ad-hoc implementations.
+Legacy event names `open-modal` / `close-modal` are accepted too, useful when migrating from ad-hoc implementations.
 
 ### From inside the markup
 
@@ -223,4 +223,4 @@ Lifecycle events (fire on both modal element and window):
 
 ## License
 
-MIT — Edu Lazaro.
+MIT. Edu Lazaro.

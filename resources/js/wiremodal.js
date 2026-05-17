@@ -1,5 +1,5 @@
 /*!
- * wiremodal — framework-agnostic modal controller
+ * wiremodal - framework-agnostic modal controller
  * Listens for window events and updates [data-wm-state] attribute.
  *
  * Open:   Wiremodal.open('modal-name')
@@ -14,12 +14,12 @@
  *         window.dispatchEvent(new CustomEvent('close-modal',     { detail: 'modal-name' }))  // legacy alias
  *
  * Lifecycle events on both modal element and window:
- *   wiremodal:beforeclose  — cancelable. preventDefault() blocks the close.
- *   wiremodal:opened       — detail = { name, data }
- *   wiremodal:closed       — detail = { name, result } (result passed to Wiremodal.close(name, result))
+ *   wiremodal:beforeclose  - cancelable. preventDefault() blocks the close.
+ *   wiremodal:opened       - detail = { name, data }
+ *   wiremodal:closed       - detail = { name, result } (result passed to Wiremodal.close(name, result))
  *
  * Promise API: Wiremodal.open(name, data?) returns a Promise that resolves with the
- *   value passed to Wiremodal.close(name, result) — useful for sequential flows.
+ *   value passed to Wiremodal.close(name, result) - useful for sequential flows.
  *
  * Persistent: modals rendered with data-wm-persistent="true" ignore overlay clicks
  *   and ESC. They only close via explicit buttons or programmatic close().
@@ -170,7 +170,7 @@
         if (name) setState(modal, STATE_CLOSED, undefined, undefined, 'dismiss');
     });
 
-    // ESC closes the top-most open modal — skipped for persistent modals.
+    // ESC closes the top-most open modal - skipped for persistent modals.
     document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
         const opens = document.querySelectorAll('.wm-modal[data-wm-state="open"]');

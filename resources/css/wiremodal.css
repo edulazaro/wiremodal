@@ -1,11 +1,11 @@
 /* =========================================================
-   wiremodal — design tokens
+   wiremodal - design tokens
    Meta-tokens (--wire-*) are shared with the wire* family
    (wiretoast, wireforms, wirekit). Component-specific tokens
    live under --wm-*. Override either layer to customise.
    ========================================================= */
 :root {
-    /* Meta-tokens (shared family) — defaults */
+    /* Meta-tokens (shared family) - defaults */
     --wire-bg: #ffffff;
     --wire-bg-elevated: #ffffff;
     --wire-text: #0f172a;
@@ -145,7 +145,7 @@
 }
 
 /* =========================================================
-   Size catalog — keep in sync with PHP Modal::SIZES
+   Size catalog - keep in sync with PHP Modal::SIZES
    ========================================================= */
 .wm-modal[data-wm-size="xs"]  .wm-panel { --wm-max-width: 20rem;  }
 .wm-modal[data-wm-size="sm"]  .wm-panel { --wm-max-width: 24rem;  }
@@ -252,7 +252,7 @@
 }
 
 /* =========================================================
-   THEME: flat (default, no override needed — base in :root)
+   THEME: flat (default, no override needed - base in :root)
    ========================================================= */
 
 /* =========================================================
@@ -271,7 +271,7 @@
 }
 
 /* =========================================================
-   THEME: glass (frosted / backdrop blur) — 1:1 with wiretoast
+   THEME: glass (frosted / backdrop blur) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="glass"] {
     --wire-bg: rgba(255, 255, 255, 0.55);
@@ -299,7 +299,7 @@
 }
 
 /* =========================================================
-   THEME: gradient (linear-gradient panel, white text) — 1:1 with wiretoast
+   THEME: gradient (linear-gradient panel, white text) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="gradient"] {
     --wire-text: #ffffff;
@@ -323,7 +323,7 @@
 }
 
 /* =========================================================
-   THEME: neon (dark panel, glowing accent, monospace) — 1:1 with wiretoast
+   THEME: neon (dark panel, glowing accent, monospace) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="neon"] {
     --wire-bg: #0a0a12;
@@ -352,7 +352,7 @@
 }
 
 /* =========================================================
-   THEME: minimal (no shadow, left accent stripe) — 1:1 with wiretoast
+   THEME: minimal (no shadow, left accent stripe) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="minimal"] {
     --wire-border: transparent;
@@ -371,7 +371,7 @@
 }
 
 /* =========================================================
-   THEME: claude (warm minimal, Anthropic-inspired) — 1:1 with wiretoast
+   THEME: claude (warm minimal, Anthropic-inspired) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="claude"] {
     --wire-bg: #FAF9F5;
@@ -405,7 +405,7 @@
 }
 
 /* =========================================================
-   THEME: chatgpt (clean neutral, ChatGPT-inspired) — 1:1 with wiretoast
+   THEME: chatgpt (clean neutral, ChatGPT-inspired) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="chatgpt"] {
     --wire-bg: #FFFFFF;
@@ -472,7 +472,7 @@
 }
 
 /* =========================================================
-   THEME: megaflow (Flowbite-style: clean white card) — 1:1 with wiretoast
+   THEME: megaflow (Flowbite-style: clean white card) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="megaflow"] {
     --wire-bg: #ffffff;
@@ -526,7 +526,7 @@
 
 /* =========================================================
    THEME: brutalist (1px black border, hard offset shadow,
-   small radius, hover lift) — 1:1 with wiretoast
+   small radius, hover lift) - 1:1 with wiretoast
    ========================================================= */
 [data-wire-theme="brutalist"] {
     --wire-bg: #ffffff;
