@@ -1,0 +1,40 @@
+{
+    "name": "edulazaro/wiremodal",
+    "description": "Framework-agnostic modal/dialog system for Laravel, Livewire and Alpine. Pure CSS themes, custom-theme via variables, drop-in API. Sibling of wiretoast.",
+    "keywords": ["laravel", "livewire", "alpine", "modal", "dialog", "ui"],
+    "license": "MIT",
+    "type": "library",
+    "require": {
+        "php": ">=8.2",
+        "illuminate/support": ">=11.0",
+        "illuminate/view": ">=11.0"
+    },
+    "suggest": {
+        "livewire/livewire": "Use $this->dispatch('open-wiremodal', 'name') / $this->dispatch('close-wiremodal', 'name') from PHP components."
+    },
+    "autoload": {
+        "psr-4": {
+            "EduLazaro\\Wiremodal\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "EduLazaro\\Wiremodal\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Edu Lazaro",
+            "email": "edu@edulazaro.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "EduLazaro\\Wiremodal\\WiremodalServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

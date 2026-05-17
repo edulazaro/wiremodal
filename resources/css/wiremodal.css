@@ -1,0 +1,586 @@
+/* =========================================================
+   wiremodal — design tokens
+   Meta-tokens (--wire-*) are shared with the wire* family
+   (wiretoast, wireforms, wirekit). Component-specific tokens
+   live under --wm-*. Override either layer to customise.
+   ========================================================= */
+:root {
+    /* Meta-tokens (shared family) — defaults */
+    --wire-bg: #ffffff;
+    --wire-bg-elevated: #ffffff;
+    --wire-text: #0f172a;
+    --wire-text-muted: #64748b;
+    --wire-border: rgba(15, 23, 42, 0.08);
+    --wire-border-strong: rgba(15, 23, 42, 0.16);
+    --wire-accent: #2563eb;
+    --wire-radius: 10px;
+    --wire-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
+    --wire-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    /* Wiremodal-specific tokens */
+    --wm-bg: var(--wire-bg-elevated);
+    --wm-text: var(--wire-text);
+    --wm-text-muted: var(--wire-text-muted);
+    --wm-border-color: var(--wire-border);
+    --wm-border-width: 1px;
+    --wm-radius: var(--wire-radius);
+    --wm-shadow: var(--wire-shadow);
+    --wm-font: var(--wire-font);
+
+    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
+    --wm-overlay-filter: none;
+
+    --wm-padding-header: 16px 20px;
+    --wm-padding-body: 18px 20px;
+    --wm-padding-footer: 12px 20px;
+    --wm-gap: 16px;
+
+    --wm-title-size: 18px;
+    --wm-title-weight: 700;
+    --wm-title-color: var(--wm-text);
+
+    --wm-divider: var(--wm-border-color);
+    --wm-close-color: var(--wm-text-muted);
+    --wm-close-hover-color: var(--wm-text);
+
+    --wm-max-height: 85vh;
+    --wm-z-index: 2147483600;
+    --wm-duration: 220ms;
+    --wm-easing: cubic-bezier(0.16, 1, 0.3, 1);
+
+    --wm-mobile-breakpoint: 640px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --wire-bg: #0f1115;
+        --wire-bg-elevated: #16181d;
+        --wire-text: #f1f5f9;
+        --wire-text-muted: #94a3b8;
+        --wire-border: rgba(255, 255, 255, 0.1);
+        --wire-border-strong: rgba(255, 255, 255, 0.18);
+        --wire-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.35);
+
+        --wm-overlay-bg: rgba(0, 0, 0, 0.65);
+    }
+}
+
+[data-wire-theme-mode="dark"], .dark {
+    --wire-bg: #0f1115;
+    --wire-bg-elevated: #16181d;
+    --wire-text: #f1f5f9;
+    --wire-text-muted: #94a3b8;
+    --wire-border: rgba(255, 255, 255, 0.1);
+    --wire-border-strong: rgba(255, 255, 255, 0.18);
+    --wire-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.35);
+
+    --wm-overlay-bg: rgba(0, 0, 0, 0.65);
+}
+
+/* =========================================================
+   Body lock helper (added by JS when any modal is open)
+   ========================================================= */
+.wm-no-scroll {
+    overflow: hidden;
+}
+
+/* =========================================================
+   Root wrapper
+   ========================================================= */
+.wm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: var(--wm-z-index);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity var(--wm-duration) var(--wm-easing),
+                visibility var(--wm-duration) var(--wm-easing);
+    font-family: var(--wm-font);
+}
+
+.wm-modal[data-wm-state="open"] {
+    pointer-events: auto;
+    visibility: visible;
+    opacity: 1;
+}
+
+/* =========================================================
+   Overlay
+   ========================================================= */
+.wm-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--wm-overlay-bg);
+    backdrop-filter: var(--wm-overlay-filter);
+    -webkit-backdrop-filter: var(--wm-overlay-filter);
+}
+
+/* =========================================================
+   Panel
+   ========================================================= */
+.wm-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--wm-max-width, 42rem);
+    max-height: var(--wm-max-height);
+    background: var(--wm-bg);
+    color: var(--wm-text);
+    border: var(--wm-border-width) solid var(--wm-border-color);
+    border-radius: var(--wm-radius);
+    box-shadow: var(--wm-shadow);
+    overflow: hidden;
+    transform: translateY(20px) scale(0.96);
+    transition: transform var(--wm-duration) var(--wm-easing);
+}
+
+.wm-modal[data-wm-state="open"] .wm-panel {
+    transform: translateY(0) scale(1);
+}
+
+/* =========================================================
+   Size catalog — keep in sync with PHP Modal::SIZES
+   ========================================================= */
+.wm-modal[data-wm-size="xs"]  .wm-panel { --wm-max-width: 20rem;  }
+.wm-modal[data-wm-size="sm"]  .wm-panel { --wm-max-width: 24rem;  }
+.wm-modal[data-wm-size="md"]  .wm-panel { --wm-max-width: 28rem;  }
+.wm-modal[data-wm-size="lg"]  .wm-panel { --wm-max-width: 32rem;  }
+.wm-modal[data-wm-size="xl"]  .wm-panel { --wm-max-width: 36rem;  }
+.wm-modal[data-wm-size="2xl"] .wm-panel { --wm-max-width: 42rem;  }
+.wm-modal[data-wm-size="3xl"] .wm-panel { --wm-max-width: 48rem;  }
+.wm-modal[data-wm-size="4xl"] .wm-panel { --wm-max-width: 56rem;  }
+.wm-modal[data-wm-size="5xl"] .wm-panel { --wm-max-width: 64rem;  }
+.wm-modal[data-wm-size="6xl"] .wm-panel { --wm-max-width: 72rem;  }
+.wm-modal[data-wm-size="7xl"] .wm-panel { --wm-max-width: 80rem;  }
+
+/* =========================================================
+   Fullscreen
+   ========================================================= */
+.wm-modal[data-wm-fullscreen="true"] {
+    padding: 0;
+}
+.wm-modal[data-wm-fullscreen="true"] .wm-panel {
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    transform: scale(1) translateY(0);
+}
+
+/* =========================================================
+   Header / Body / Footer
+   ========================================================= */
+.wm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--wm-gap);
+    padding: var(--wm-padding-header);
+    border-bottom: 1px solid var(--wm-divider);
+    flex-shrink: 0;
+}
+
+.wm-title {
+    margin: 0;
+    font-size: var(--wm-title-size);
+    font-weight: var(--wm-title-weight);
+    line-height: 1.2;
+    color: var(--wm-title-color);
+}
+
+.wm-close {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: var(--wm-close-color);
+    cursor: pointer;
+    padding: 4px;
+    margin: -4px;
+    line-height: 0;
+    border-radius: 4px;
+    transition: color 120ms ease, background 120ms ease;
+}
+.wm-close:hover {
+    color: var(--wm-close-hover-color);
+}
+.wm-close:focus-visible {
+    outline: 2px solid var(--wire-accent);
+    outline-offset: 2px;
+}
+.wm-close svg {
+    display: block;
+}
+
+.wm-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: var(--wm-padding-body);
+}
+
+.wm-footer {
+    padding: var(--wm-padding-footer);
+    border-top: 1px solid var(--wm-divider);
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   Mobile: bottom-sheet style for non-fullscreen modals
+   ========================================================= */
+@media (max-width: 639px) {
+    .wm-modal:not([data-wm-fullscreen="true"]) {
+        align-items: flex-end;
+        padding: 0;
+    }
+    .wm-modal:not([data-wm-fullscreen="true"]) .wm-panel {
+        max-width: 100%;
+        width: 100%;
+        max-height: 92vh;
+        border-radius: var(--wm-radius) var(--wm-radius) 0 0;
+        transform: translateY(100%);
+    }
+    .wm-modal:not([data-wm-fullscreen="true"])[data-wm-state="open"] .wm-panel {
+        transform: translateY(0);
+    }
+}
+
+/* =========================================================
+   THEME: flat (default, no override needed — base in :root)
+   ========================================================= */
+
+/* =========================================================
+   THEME: soft (tinted background, accent-mixed border)
+   Mirrors wiretoast `soft`: uses the accent as tint.
+   ========================================================= */
+[data-wire-theme="soft"] {
+    --wire-radius: 12px;
+
+    --wm-overlay-bg: rgba(15, 23, 42, 0.35);
+}
+[data-wire-theme="soft"] .wm-panel {
+    background: color-mix(in srgb, var(--wire-accent) 10%, var(--wire-bg));
+    border: 1px solid color-mix(in srgb, var(--wire-accent) 25%, transparent);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--wire-accent) 12%, transparent);
+}
+
+/* =========================================================
+   THEME: glass (frosted / backdrop blur) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="glass"] {
+    --wire-bg: rgba(255, 255, 255, 0.55);
+    --wire-bg-elevated: rgba(255, 255, 255, 0.55);
+    --wire-text: #0f172a;
+    --wire-text-muted: rgba(15, 23, 42, 0.7);
+    --wire-border: rgba(255, 255, 255, 0.4);
+    --wire-radius: 14px;
+    --wire-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+
+    --wm-overlay-bg: rgba(15, 23, 42, 0.25);
+    --wm-overlay-filter: blur(8px) saturate(150%);
+}
+[data-wire-theme="glass"] .wm-panel {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+[data-wire-theme="glass"][data-wire-theme-mode="dark"],
+.dark[data-wire-theme="glass"] {
+    --wire-bg: rgba(30, 30, 35, 0.55);
+    --wire-bg-elevated: rgba(30, 30, 35, 0.55);
+    --wire-text: #f1f5f9;
+    --wire-text-muted: rgba(241, 245, 249, 0.7);
+    --wire-border: rgba(255, 255, 255, 0.1);
+}
+
+/* =========================================================
+   THEME: gradient (linear-gradient panel, white text) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="gradient"] {
+    --wire-text: #ffffff;
+    --wire-text-muted: rgba(255, 255, 255, 0.78);
+    --wire-border: transparent;
+    --wire-accent: #8b5cf6;
+    --wire-radius: 12px;
+
+    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
+    --wm-divider: rgba(255, 255, 255, 0.18);
+    --wm-close-color: rgba(255, 255, 255, 0.7);
+    --wm-close-hover-color: #ffffff;
+    --wm-title-color: #ffffff;
+}
+[data-wire-theme="gradient"] .wm-panel {
+    background: linear-gradient(135deg,
+        var(--wire-accent),
+        color-mix(in srgb, var(--wire-accent) 65%, #000000));
+    border: 0;
+    box-shadow: 0 10px 30px color-mix(in srgb, var(--wire-accent) 35%, transparent);
+}
+
+/* =========================================================
+   THEME: neon (dark panel, glowing accent, monospace) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="neon"] {
+    --wire-bg: #0a0a12;
+    --wire-bg-elevated: #0a0a12;
+    --wire-accent: #22d3ee;
+    --wire-text: var(--wire-accent);
+    --wire-text-muted: color-mix(in srgb, var(--wire-accent) 55%, #ffffff);
+    --wire-border: var(--wire-accent);
+    --wire-radius: 4px;
+    --wire-shadow:
+        0 0 20px color-mix(in srgb, var(--wire-accent) 50%, transparent),
+        inset 0 0 20px color-mix(in srgb, var(--wire-accent) 8%, transparent);
+
+    --wm-overlay-bg: rgba(0, 0, 0, 0.8);
+    --wm-font: ui-monospace, "JetBrains Mono", "Fira Code", "Courier New", monospace;
+    --wm-title-color: var(--wire-accent);
+    --wm-divider: color-mix(in srgb, var(--wire-accent) 35%, transparent);
+}
+[data-wire-theme="neon"] .wm-panel {
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    text-shadow: 0 0 6px color-mix(in srgb, var(--wire-accent) 50%, transparent);
+}
+[data-wire-theme="neon"] .wm-title {
+    text-shadow: 0 0 8px color-mix(in srgb, var(--wire-accent) 60%, transparent);
+}
+
+/* =========================================================
+   THEME: minimal (no shadow, left accent stripe) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="minimal"] {
+    --wire-border: transparent;
+    --wire-accent: #0ea5e9;
+    --wire-radius: 0;
+    --wire-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+
+    --wm-overlay-bg: rgba(15, 23, 42, 0.35);
+    --wm-border-width: 0;
+    --wm-padding-header: 12px 16px;
+    --wm-padding-body: 16px;
+    --wm-padding-footer: 12px 16px;
+}
+[data-wire-theme="minimal"] .wm-panel {
+    border-left: 3px solid var(--wire-accent);
+}
+
+/* =========================================================
+   THEME: claude (warm minimal, Anthropic-inspired) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="claude"] {
+    --wire-bg: #FAF9F5;
+    --wire-bg-elevated: #FAF9F5;
+    --wire-text: #1A1A1A;
+    --wire-text-muted: #6B6560;
+    --wire-border: rgba(26, 26, 26, 0.08);
+    --wire-accent: #C96442;
+    --wire-radius: 10px;
+    --wire-shadow:
+        0 8px 24px rgba(26, 26, 26, 0.06),
+        0 2px 6px rgba(26, 26, 26, 0.04);
+
+    --wm-overlay-bg: rgba(26, 26, 26, 0.45);
+    --wm-title-weight: 600;
+    --wm-padding-header: 14px 16px;
+    --wm-padding-body: 16px;
+    --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="claude"] .wm-panel {
+    border-top: 2px solid var(--wire-accent);
+    letter-spacing: -0.005em;
+}
+[data-wire-theme="claude"][data-wire-theme-mode="dark"],
+.dark[data-wire-theme="claude"] {
+    --wire-bg: #262321;
+    --wire-bg-elevated: #262321;
+    --wire-text: #F5F4EE;
+    --wire-text-muted: #B8B3AC;
+    --wire-border: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================================
+   THEME: chatgpt (clean neutral, ChatGPT-inspired) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="chatgpt"] {
+    --wire-bg: #FFFFFF;
+    --wire-bg-elevated: #FFFFFF;
+    --wire-text: #0D0D0D;
+    --wire-text-muted: #5D5D5D;
+    --wire-border: #E5E5E5;
+    --wire-accent: #10a37f;
+    --wire-radius: 12px;
+    --wire-shadow:
+        0 6px 24px rgba(0, 0, 0, 0.05),
+        0 1px 2px rgba(0, 0, 0, 0.04);
+    --wire-font: "Söhne", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Inter", sans-serif;
+
+    --wm-overlay-bg: rgba(0, 0, 0, 0.5);
+    --wm-title-weight: 600;
+    --wm-padding-header: 14px 16px;
+    --wm-padding-body: 16px;
+    --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="chatgpt"][data-wire-theme-mode="dark"],
+.dark[data-wire-theme="chatgpt"] {
+    --wire-bg: #2F2F2F;
+    --wire-bg-elevated: #2F2F2F;
+    --wire-text: #ECECEC;
+    --wire-text-muted: #B4B4B4;
+    --wire-border: #4D4D4F;
+}
+
+/* =========================================================
+   THEME: synthwave (retro 80s, purple/magenta + neon glow)
+   ========================================================= */
+[data-wire-theme="synthwave"] {
+    --wire-text: #ffffff;
+    --wire-text-muted: rgba(255, 255, 255, 0.85);
+    --wire-accent: #ff00ff;
+    --wire-border: var(--wire-accent);
+    --wire-radius: 0;
+    --wire-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+        0 0 14px color-mix(in srgb, var(--wire-accent) 40%, transparent),
+        0 4px 20px color-mix(in srgb, var(--wire-accent) 25%, transparent);
+
+    --wm-overlay-bg: rgba(10, 0, 30, 0.7);
+    --wm-font: ui-monospace, "JetBrains Mono", "Courier New", monospace;
+    --wm-title-color: var(--wire-accent);
+    --wm-close-color: var(--wire-accent);
+    --wm-divider: color-mix(in srgb, var(--wire-accent) 40%, transparent);
+    --wm-padding-header: 14px 16px;
+    --wm-padding-body: 16px;
+    --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="synthwave"] .wm-panel {
+    background: linear-gradient(135deg, #1a0033 0%, #2d0066 100%);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+}
+[data-wire-theme="synthwave"] .wm-title {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+    font-size: 11px;
+    text-shadow: 0 0 8px var(--wire-accent);
+}
+
+/* =========================================================
+   THEME: megaflow (Flowbite-style: clean white card) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="megaflow"] {
+    --wire-bg: #ffffff;
+    --wire-bg-elevated: #ffffff;
+    --wire-text: #111827;
+    --wire-text-muted: #6b7280;
+    --wire-border: rgba(0, 0, 0, 0.05);
+    --wire-accent: #3b82f6;
+    --wire-radius: 8px;
+    --wire-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.1),
+        0 1px 2px rgba(0, 0, 0, 0.06);
+    --wire-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Inter", sans-serif;
+
+    --wm-overlay-bg: rgba(17, 24, 39, 0.55);
+    --wm-title-weight: 600;
+    --wm-padding-header: 16px;
+    --wm-padding-body: 16px;
+    --wm-padding-footer: 16px;
+    --wm-close-color: #9ca3af;
+    --wm-close-hover-color: #111827;
+}
+[data-wire-theme="megaflow"] .wm-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin: 0;
+    transition: background-color 120ms, color 120ms;
+}
+[data-wire-theme="megaflow"] .wm-close:hover {
+    background: #f3f4f6;
+}
+[data-wire-theme="megaflow"][data-wire-theme-mode="dark"],
+.dark[data-wire-theme="megaflow"] {
+    --wire-bg: #1f2937;
+    --wire-bg-elevated: #1f2937;
+    --wire-text: #f9fafb;
+    --wire-text-muted: #9ca3af;
+    --wire-border: rgba(255, 255, 255, 0.06);
+    --wm-close-color: #9ca3af;
+    --wm-close-hover-color: #ffffff;
+}
+[data-wire-theme="megaflow"][data-wire-theme-mode="dark"] .wm-close:hover,
+.dark[data-wire-theme="megaflow"] .wm-close:hover {
+    background: #374151;
+}
+
+/* =========================================================
+   THEME: brutalist (1px black border, hard offset shadow,
+   small radius, hover lift) — 1:1 with wiretoast
+   ========================================================= */
+[data-wire-theme="brutalist"] {
+    --wire-bg: #ffffff;
+    --wire-bg-elevated: #ffffff;
+    --wire-text: #0a0a0a;
+    --wire-text-muted: #525252;
+    --wire-border: #0a0a0a;
+    --wire-accent: #fef08a;
+    --wire-radius: 4px;
+    --wire-shadow: 4px 4px 0 0 #0a0a0a;
+
+    --wm-overlay-bg: rgba(10, 10, 10, 0.7);
+    --wm-title-weight: 700;
+    --wm-padding-header: 14px 16px;
+    --wm-padding-body: 16px;
+    --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="brutalist"] .wm-panel {
+    transition: transform 150ms ease, box-shadow 150ms ease;
+}
+[data-wire-theme="brutalist"] .wm-panel:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 #0a0a0a;
+}
+[data-wire-theme="brutalist"] .wm-close {
+    border: 1px solid transparent;
+    border-radius: 3px;
+    color: #525252;
+}
+[data-wire-theme="brutalist"] .wm-close:hover {
+    border-color: #0a0a0a;
+    color: #0a0a0a;
+    background: #fef08a;
+}
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"],
+.dark[data-wire-theme="brutalist"] {
+    --wire-bg: #0a0a0a;
+    --wire-bg-elevated: #0a0a0a;
+    --wire-text: #f5f5f5;
+    --wire-text-muted: #a3a3a3;
+    --wire-border: #f5f5f5;
+    --wire-shadow: 4px 4px 0 0 #f5f5f5;
+}
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"] .wm-panel:hover,
+.dark[data-wire-theme="brutalist"] .wm-panel:hover {
+    box-shadow: 6px 6px 0 0 #f5f5f5;
+}
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"] .wm-close,
+.dark[data-wire-theme="brutalist"] .wm-close {
+    color: #a3a3a3;
+}
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"] .wm-close:hover,
+.dark[data-wire-theme="brutalist"] .wm-close:hover {
+    border-color: #f5f5f5;
+    color: #f5f5f5;
+    background: #404040;
+}

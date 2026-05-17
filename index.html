@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wiremodal Preview · Modal/dialog for Laravel, Livewire and Alpine</title>
+<style>
+/* =========================================================
+   wiremodal — design tokens
+   Meta-tokens (--wire-*) are shared with the wire* family
+   (wiretoast, wireforms, wirekit). Component-specific tokens
+   live under --wm-*. Override either layer to customise.
+   ========================================================= */
+:root {
+    --wire-bg: #ffffff;
+    --wire-bg-elevated: #ffffff;
+    --wire-text: #0f172a;
+    --wire-text-muted: #64748b;
+    --wire-border: rgba(15, 23, 42, 0.08);
+    --wire-border-strong: rgba(15, 23, 42, 0.16);
+    --wire-accent: #2563eb;
+    --wire-radius: 10px;
+    --wire-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
+    --wire-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    --wm-bg: var(--wire-bg-elevated);
+    --wm-text: var(--wire-text);
+    --wm-text-muted: var(--wire-text-muted);
+    --wm-border-color: var(--wire-border);
+    --wm-border-width: 1px;
+    --wm-radius: var(--wire-radius);
+    --wm-shadow: var(--wire-shadow);
+    --wm-font: var(--wire-font);
+    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
+    --wm-overlay-filter: none;
+    --wm-padding-header: 16px 20px;
+    --wm-padding-body: 18px 20px;
+    --wm-padding-footer: 12px 20px;
+    --wm-gap: 16px;
+    --wm-title-size: 18px;
+    --wm-title-weight: 700;
+    --wm-title-color: var(--wm-text);
+    --wm-divider: var(--wm-border-color);
+    --wm-close-color: var(--wm-text-muted);
+    --wm-close-hover-color: var(--wm-text);
+    --wm-max-height: 85vh;
+    --wm-z-index: 2147483600;
+    --wm-duration: 220ms;
+    --wm-easing: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --wire-bg: #0f1115;
+        --wire-bg-elevated: #16181d;
+        --wire-text: #f1f5f9;
+        --wire-text-muted: #94a3b8;
+        --wire-border: rgba(255, 255, 255, 0.1);
+        --wire-border-strong: rgba(255, 255, 255, 0.18);
+        --wire-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.35);
+        --wm-overlay-bg: rgba(0, 0, 0, 0.65);
+    }
+}
+
+[data-wire-theme-mode="dark"], .dark {
+    --wire-bg: #0f1115;
+    --wire-bg-elevated: #16181d;
+    --wire-text: #f1f5f9;
+    --wire-text-muted: #94a3b8;
+    --wire-border: rgba(255, 255, 255, 0.1);
+    --wire-border-strong: rgba(255, 255, 255, 0.18);
+    --wire-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.35);
+    --wm-overlay-bg: rgba(0, 0, 0, 0.65);
+}
+
+[data-wire-theme-mode="light"] {
+    --wire-bg: #ffffff;
+    --wire-bg-elevated: #ffffff;
+    --wire-text: #0f172a;
+    --wire-text-muted: #64748b;
+    --wire-border: rgba(15, 23, 42, 0.08);
+    --wire-border-strong: rgba(15, 23, 42, 0.16);
+    --wire-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
+    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
+}
+
+.wm-no-scroll { overflow: hidden; }
+
+.wm-modal {
+    position: fixed; inset: 0;
+    z-index: var(--wm-z-index);
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px;
+    pointer-events: none; visibility: hidden; opacity: 0;
+    transition: opacity var(--wm-duration) var(--wm-easing),
+                visibility var(--wm-duration) var(--wm-easing);
+    font-family: var(--wm-font);
+}
+.wm-modal[data-wm-state="open"] { pointer-events: auto; visibility: visible; opacity: 1; }
+
+.wm-overlay {
+    position: absolute; inset: 0;
+    background: var(--wm-overlay-bg);
+    backdrop-filter: var(--wm-overlay-filter);
+    -webkit-backdrop-filter: var(--wm-overlay-filter);
+}
+
+.wm-panel {
+    position: relative;
+    display: flex; flex-direction: column;
+    width: 100%;
+    max-width: var(--wm-max-width, 42rem);
+    max-height: var(--wm-max-height);
+    background: var(--wm-bg);
+    color: var(--wm-text);
+    border: var(--wm-border-width) solid var(--wm-border-color);
+    border-radius: var(--wm-radius);
+    box-shadow: var(--wm-shadow);
+    overflow: hidden;
+    transform: translateY(20px) scale(0.96);
+    transition: transform var(--wm-duration) var(--wm-easing);
+}
+.wm-modal[data-wm-state="open"] .wm-panel { transform: translateY(0) scale(1); }
+
+.wm-modal[data-wm-size="xs"]  .wm-panel { --wm-max-width: 20rem;  }
+.wm-modal[data-wm-size="sm"]  .wm-panel { --wm-max-width: 24rem;  }
+.wm-modal[data-wm-size="md"]  .wm-panel { --wm-max-width: 28rem;  }
+.wm-modal[data-wm-size="lg"]  .wm-panel { --wm-max-width: 32rem;  }
+.wm-modal[data-wm-size="xl"]  .wm-panel { --wm-max-width: 36rem;  }
+.wm-modal[data-wm-size="2xl"] .wm-panel { --wm-max-width: 42rem;  }
+.wm-modal[data-wm-size="3xl"] .wm-panel { --wm-max-width: 48rem;  }
+.wm-modal[data-wm-size="4xl"] .wm-panel { --wm-max-width: 56rem;  }
+.wm-modal[data-wm-size="5xl"] .wm-panel { --wm-max-width: 64rem;  }
+.wm-modal[data-wm-size="6xl"] .wm-panel { --wm-max-width: 72rem;  }
+.wm-modal[data-wm-size="7xl"] .wm-panel { --wm-max-width: 80rem;  }
+
+.wm-modal[data-wm-fullscreen="true"] { padding: 0; }
+.wm-modal[data-wm-fullscreen="true"] .wm-panel {
+    max-width: 100vw; max-height: 100vh; width: 100vw; height: 100vh;
+    border-radius: 0; transform: scale(1) translateY(0);
+}
+
+.wm-header {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--wm-gap);
+    padding: var(--wm-padding-header);
+    border-bottom: 1px solid var(--wm-divider);
+    flex-shrink: 0;
+}
+.wm-title {
+    margin: 0;
+    font-size: var(--wm-title-size); font-weight: var(--wm-title-weight);
+    line-height: 1.2; color: var(--wm-title-color);
+}
+.wm-close {
+    appearance: none; background: transparent; border: 0;
+    color: var(--wm-close-color); cursor: pointer;
+    padding: 4px; margin: -4px; line-height: 0;
+    border-radius: 4px;
+    transition: color 120ms ease, background 120ms ease;
+}
+.wm-close:hover { color: var(--wm-close-hover-color); }
+.wm-close:focus-visible { outline: 2px solid var(--wire-accent); outline-offset: 2px; }
+.wm-close svg { display: block; }
+.wm-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--wm-padding-body); }
+.wm-footer { padding: var(--wm-padding-footer); border-top: 1px solid var(--wm-divider); flex-shrink: 0; }
+
+@media (max-width: 639px) {
+    .wm-modal:not([data-wm-fullscreen="true"]) { align-items: flex-end; padding: 0; }
+    .wm-modal:not([data-wm-fullscreen="true"]) .wm-panel {
+        max-width: 100%; width: 100%; max-height: 92vh;
+        border-radius: var(--wm-radius) var(--wm-radius) 0 0;
+        transform: translateY(100%);
+    }
+    .wm-modal:not([data-wm-fullscreen="true"])[data-wm-state="open"] .wm-panel { transform: translateY(0); }
+}
+
+/* THEMES */
+[data-wire-theme="soft"] { --wire-radius: 12px; --wm-overlay-bg: rgba(15, 23, 42, 0.35); }
+[data-wire-theme="soft"] .wm-panel {
+    background: color-mix(in srgb, var(--wire-accent) 10%, var(--wire-bg));
+    border: 1px solid color-mix(in srgb, var(--wire-accent) 25%, transparent);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--wire-accent) 12%, transparent);
+}
+
+[data-wire-theme="glass"] {
+    --wire-bg: rgba(255, 255, 255, 0.55); --wire-bg-elevated: rgba(255, 255, 255, 0.55);
+    --wire-text: #0f172a; --wire-text-muted: rgba(15, 23, 42, 0.7);
+    --wire-border: rgba(255, 255, 255, 0.4);
+    --wire-radius: 14px; --wire-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+    --wm-overlay-bg: rgba(15, 23, 42, 0.25); --wm-overlay-filter: blur(8px) saturate(150%);
+}
+[data-wire-theme="glass"] .wm-panel { backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); }
+[data-wire-theme="glass"][data-wire-theme-mode="dark"], .dark[data-wire-theme="glass"] {
+    --wire-bg: rgba(30, 30, 35, 0.55); --wire-bg-elevated: rgba(30, 30, 35, 0.55);
+    --wire-text: #f1f5f9; --wire-text-muted: rgba(241, 245, 249, 0.7); --wire-border: rgba(255, 255, 255, 0.1);
+}
+
+[data-wire-theme="gradient"] {
+    --wire-text: #ffffff; --wire-text-muted: rgba(255, 255, 255, 0.78);
+    --wire-border: transparent; --wire-accent: #8b5cf6; --wire-radius: 12px;
+    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
+    --wm-divider: rgba(255, 255, 255, 0.18);
+    --wm-close-color: rgba(255, 255, 255, 0.7); --wm-close-hover-color: #ffffff; --wm-title-color: #ffffff;
+}
+[data-wire-theme="gradient"] .wm-panel {
+    background: linear-gradient(135deg, var(--wire-accent), color-mix(in srgb, var(--wire-accent) 65%, #000000));
+    border: 0; box-shadow: 0 10px 30px color-mix(in srgb, var(--wire-accent) 35%, transparent);
+}
+
+[data-wire-theme="neon"] {
+    --wire-bg: #0a0a12; --wire-bg-elevated: #0a0a12;
+    --wire-accent: #22d3ee;
+    --wire-text: var(--wire-accent); --wire-text-muted: color-mix(in srgb, var(--wire-accent) 55%, #ffffff);
+    --wire-border: var(--wire-accent); --wire-radius: 4px;
+    --wire-shadow: 0 0 20px color-mix(in srgb, var(--wire-accent) 50%, transparent),
+                   inset 0 0 20px color-mix(in srgb, var(--wire-accent) 8%, transparent);
+    --wm-overlay-bg: rgba(0, 0, 0, 0.8);
+    --wm-font: ui-monospace, "JetBrains Mono", "Fira Code", "Courier New", monospace;
+    --wm-title-color: var(--wire-accent); --wm-divider: color-mix(in srgb, var(--wire-accent) 35%, transparent);
+}
+[data-wire-theme="neon"] .wm-panel {
+    font-size: 13px; letter-spacing: 0.3px;
+    text-shadow: 0 0 6px color-mix(in srgb, var(--wire-accent) 50%, transparent);
+}
+[data-wire-theme="neon"] .wm-title { text-shadow: 0 0 8px color-mix(in srgb, var(--wire-accent) 60%, transparent); }
+
+[data-wire-theme="minimal"] {
+    --wire-border: transparent; --wire-accent: #0ea5e9; --wire-radius: 0;
+    --wire-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    --wm-overlay-bg: rgba(15, 23, 42, 0.35);
+    --wm-border-width: 0;
+    --wm-padding-header: 12px 16px; --wm-padding-body: 16px; --wm-padding-footer: 12px 16px;
+}
+[data-wire-theme="minimal"] .wm-panel { border-left: 3px solid var(--wire-accent); }
+
+[data-wire-theme="claude"] {
+    --wire-bg: #FAF9F5; --wire-bg-elevated: #FAF9F5;
+    --wire-text: #1A1A1A; --wire-text-muted: #6B6560;
+    --wire-border: rgba(26, 26, 26, 0.08); --wire-accent: #C96442;
+    --wire-radius: 10px;
+    --wire-shadow: 0 8px 24px rgba(26, 26, 26, 0.06), 0 2px 6px rgba(26, 26, 26, 0.04);
+    --wm-overlay-bg: rgba(26, 26, 26, 0.45);
+    --wm-title-weight: 600;
+    --wm-padding-header: 14px 16px; --wm-padding-body: 16px; --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="claude"] .wm-panel { border-top: 2px solid var(--wire-accent); letter-spacing: -0.005em; }
+[data-wire-theme="claude"][data-wire-theme-mode="dark"], .dark[data-wire-theme="claude"] {
+    --wire-bg: #262321; --wire-bg-elevated: #262321;
+    --wire-text: #F5F4EE; --wire-text-muted: #B8B3AC;
+    --wire-border: rgba(255, 255, 255, 0.08);
+}
+
+[data-wire-theme="chatgpt"] {
+    --wire-bg: #FFFFFF; --wire-bg-elevated: #FFFFFF;
+    --wire-text: #0D0D0D; --wire-text-muted: #5D5D5D;
+    --wire-border: #E5E5E5; --wire-accent: #10a37f;
+    --wire-radius: 12px;
+    --wire-shadow: 0 6px 24px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --wire-font: "Söhne", ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Inter", sans-serif;
+    --wm-overlay-bg: rgba(0, 0, 0, 0.5);
+    --wm-title-weight: 600;
+    --wm-padding-header: 14px 16px; --wm-padding-body: 16px; --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="chatgpt"][data-wire-theme-mode="dark"], .dark[data-wire-theme="chatgpt"] {
+    --wire-bg: #2F2F2F; --wire-bg-elevated: #2F2F2F;
+    --wire-text: #ECECEC; --wire-text-muted: #B4B4B4; --wire-border: #4D4D4F;
+}
+
+[data-wire-theme="synthwave"] {
+    --wire-text: #ffffff; --wire-text-muted: rgba(255, 255, 255, 0.85);
+    --wire-accent: #ff00ff; --wire-border: var(--wire-accent); --wire-radius: 0;
+    --wire-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+                   0 0 14px color-mix(in srgb, var(--wire-accent) 40%, transparent),
+                   0 4px 20px color-mix(in srgb, var(--wire-accent) 25%, transparent);
+    --wm-overlay-bg: rgba(10, 0, 30, 0.7);
+    --wm-font: ui-monospace, "JetBrains Mono", "Courier New", monospace;
+    --wm-title-color: var(--wire-accent); --wm-close-color: var(--wire-accent);
+    --wm-divider: color-mix(in srgb, var(--wire-accent) 40%, transparent);
+    --wm-padding-header: 14px 16px; --wm-padding-body: 16px; --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="synthwave"] .wm-panel {
+    background: linear-gradient(135deg, #1a0033 0%, #2d0066 100%);
+    font-size: 13px; letter-spacing: 0.04em;
+}
+[data-wire-theme="synthwave"] .wm-title {
+    text-transform: uppercase; letter-spacing: 0.15em;
+    font-weight: 700; font-size: 11px;
+    text-shadow: 0 0 8px var(--wire-accent);
+}
+
+[data-wire-theme="megaflow"] {
+    --wire-bg: #ffffff; --wire-bg-elevated: #ffffff;
+    --wire-text: #111827; --wire-text-muted: #6b7280;
+    --wire-border: rgba(0, 0, 0, 0.05); --wire-accent: #3b82f6;
+    --wire-radius: 8px;
+    --wire-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    --wire-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Inter", sans-serif;
+    --wm-overlay-bg: rgba(17, 24, 39, 0.55);
+    --wm-title-weight: 600;
+    --wm-padding-header: 16px; --wm-padding-body: 16px; --wm-padding-footer: 16px;
+    --wm-close-color: #9ca3af; --wm-close-hover-color: #111827;
+}
+[data-wire-theme="megaflow"] .wm-close {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0; margin: 0; transition: background-color 120ms, color 120ms;
+}
+[data-wire-theme="megaflow"] .wm-close:hover { background: #f3f4f6; }
+[data-wire-theme="megaflow"][data-wire-theme-mode="dark"], .dark[data-wire-theme="megaflow"] {
+    --wire-bg: #1f2937; --wire-bg-elevated: #1f2937;
+    --wire-text: #f9fafb; --wire-text-muted: #9ca3af;
+    --wire-border: rgba(255, 255, 255, 0.06);
+    --wm-close-color: #9ca3af; --wm-close-hover-color: #ffffff;
+}
+[data-wire-theme="megaflow"][data-wire-theme-mode="dark"] .wm-close:hover,
+.dark[data-wire-theme="megaflow"] .wm-close:hover { background: #374151; }
+
+[data-wire-theme="brutalist"] {
+    --wire-bg: #ffffff; --wire-bg-elevated: #ffffff;
+    --wire-text: #0a0a0a; --wire-text-muted: #525252;
+    --wire-border: #0a0a0a; --wire-accent: #fef08a;
+    --wire-radius: 4px; --wire-shadow: 4px 4px 0 0 #0a0a0a;
+    --wm-overlay-bg: rgba(10, 10, 10, 0.7);
+    --wm-title-weight: 700;
+    --wm-padding-header: 14px 16px; --wm-padding-body: 16px; --wm-padding-footer: 14px 16px;
+}
+[data-wire-theme="brutalist"] .wm-panel { transition: transform 150ms ease, box-shadow 150ms ease; }
+[data-wire-theme="brutalist"] .wm-panel:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 0 #0a0a0a; }
+[data-wire-theme="brutalist"] .wm-close { border: 1px solid transparent; border-radius: 3px; color: #525252; }
+[data-wire-theme="brutalist"] .wm-close:hover { border-color: #0a0a0a; color: #0a0a0a; background: #fef08a; }
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"], .dark[data-wire-theme="brutalist"] {
+    --wire-bg: #0a0a0a; --wire-bg-elevated: #0a0a0a;
+    --wire-text: #f5f5f5; --wire-text-muted: #a3a3a3;
+    --wire-border: #f5f5f5; --wire-shadow: 4px 4px 0 0 #f5f5f5;
+}
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"] .wm-panel:hover,
+.dark[data-wire-theme="brutalist"] .wm-panel:hover { box-shadow: 6px 6px 0 0 #f5f5f5; }
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"] .wm-close,
+.dark[data-wire-theme="brutalist"] .wm-close { color: #a3a3a3; }
+[data-wire-theme="brutalist"][data-wire-theme-mode="dark"] .wm-close:hover,
+.dark[data-wire-theme="brutalist"] .wm-close:hover { border-color: #f5f5f5; color: #f5f5f5; background: #404040; }
+
+/* =========================================================
+   PAGE chrome (not part of the package)
+   ========================================================= */
+* { box-sizing: border-box; }
+html { background: var(--wire-bg); }
+body {
+    margin: 0;
+    background: var(--wire-bg);
+    color: var(--wire-text);
+    font-family: var(--wire-font);
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 200ms ease, color 200ms ease;
+}
+.page { max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+h1 { font-size: 36px; margin: 0 0 8px; letter-spacing: -0.02em; }
+.sub { color: var(--wire-text-muted); margin: 0 0 32px; }
+h2 { font-size: 16px; margin: 0 0 16px; letter-spacing: -0.01em; }
+.card {
+    background: var(--wire-bg-elevated);
+    border: 1px solid var(--wire-border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+.controls { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+.control label { display: block; font-size: 12px; color: var(--wire-text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+.control select {
+    width: 100%;
+    background: var(--wire-bg);
+    color: var(--wire-text);
+    border: 1px solid var(--wire-border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: inherit;
+}
+.btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+    background: var(--wire-bg);
+    color: var(--wire-text);
+    border: 1px solid var(--wire-border-strong);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 120ms, border-color 120ms, transform 80ms;
+}
+.btn:hover { background: var(--wire-bg-elevated); border-color: var(--wire-accent); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--wire-accent); border-color: var(--wire-accent); color: #fff; }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn.danger { background: #dc2626; border-color: #dc2626; color: #fff; }
+.btn.danger:hover { filter: brightness(1.06); }
+pre {
+    background: var(--wire-bg);
+    border: 1px solid var(--wire-border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    margin: 8px 0 16px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+code { font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Courier New", monospace; }
+.api-label { font-size: 12px; color: var(--wire-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 16px 0 4px; }
+.api-hint { color: var(--wire-text-muted); font-size: 13px; }
+.credits { color: var(--wire-text-muted); font-size: 13px; text-align: center; margin-top: 32px; }
+.credits a { color: var(--wire-text); text-decoration: none; border-bottom: 1px dotted var(--wire-text-muted); }
+.credits a:hover { color: var(--wire-accent); border-bottom-color: var(--wire-accent); }
+.long-content p { margin: 0 0 12px; }
+.field { display: block; margin-bottom: 12px; }
+.field label { display: block; font-size: 12px; color: var(--wm-text-muted); margin-bottom: 4px; }
+.field input {
+    width: 100%;
+    background: transparent;
+    color: var(--wm-text);
+    border: 1px solid var(--wm-border-color);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font: inherit;
+}
+.footer-actions { display: flex; gap: 8px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+
+<div class="page">
+    <h1>Wiremodal Preview</h1>
+    <p class="sub">10 themes · 11 sizes · framework-agnostic · pure CSS</p>
+
+    <div class="card">
+        <h2>Controls</h2>
+        <div class="controls">
+            <div class="control">
+                <label for="theme">Theme</label>
+                <select id="theme">
+                    <option value="flat">flat (default)</option>
+                    <option value="soft">soft</option>
+                    <option value="glass">glass</option>
+                    <option value="gradient">gradient</option>
+                    <option value="neon">neon</option>
+                    <option value="minimal">minimal</option>
+                    <option value="claude">claude</option>
+                    <option value="chatgpt" selected>chatgpt</option>
+                    <option value="synthwave">synthwave</option>
+                    <option value="megaflow">megaflow</option>
+                    <option value="brutalist">brutalist</option>
+                </select>
+            </div>
+            <div class="control">
+                <label for="mode">Mode</label>
+                <select id="mode">
+                    <option value="auto">auto (OS)</option>
+                    <option value="light">light</option>
+                    <option value="dark">dark</option>
+                </select>
+            </div>
+            <div class="control">
+                <label for="size">Size</label>
+                <select id="size">
+                    <option value="xs">xs · 20rem</option>
+                    <option value="sm">sm · 24rem</option>
+                    <option value="md" selected>md · 28rem</option>
+                    <option value="lg">lg · 32rem</option>
+                    <option value="xl">xl · 36rem</option>
+                    <option value="2xl">2xl · 42rem</option>
+                    <option value="3xl">3xl · 48rem</option>
+                    <option value="4xl">4xl · 56rem</option>
+                    <option value="5xl">5xl · 64rem</option>
+                    <option value="6xl">6xl · 72rem</option>
+                    <option value="7xl">7xl · 80rem</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Try the modals</h2>
+        <div class="btn-row">
+            <button class="btn primary" onclick="Wiremodal.open('demo-confirm')">Confirm dialog</button>
+            <button class="btn" onclick="Wiremodal.open('demo-form')">Form modal</button>
+            <button class="btn" onclick="Wiremodal.open('demo-long')">Long content (scroll)</button>
+            <button class="btn" onclick="Wiremodal.open('demo-no-header')">No header</button>
+            <button class="btn" onclick="Wiremodal.open('demo-no-footer')">No footer</button>
+            <button class="btn" onclick="Wiremodal.open('demo-fullscreen')">Fullscreen</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>API</h2>
+
+        <p class="api-label">JavaScript (vanilla)</p>
+<pre><code>Wiremodal.open('confirm-delete');
+Wiremodal.close('confirm-delete');
+Wiremodal.closeAll();
+Wiremodal.isOpen('confirm-delete');</code></pre>
+
+        <p class="api-label">Custom events (Alpine, vanilla, anything)</p>
+<pre><code>window.dispatchEvent(new CustomEvent('open-wiremodal',  { detail: 'confirm-delete' }));
+window.dispatchEvent(new CustomEvent('close-wiremodal', { detail: 'confirm-delete' }));
+
+&lt;!-- Legacy aliases also accepted --&gt;
+window.dispatchEvent(new CustomEvent('open-modal',  { detail: 'confirm-delete' }));</code></pre>
+
+        <p class="api-label">Livewire (PHP)</p>
+<pre><code>$this-&gt;dispatch('open-wiremodal',  'confirm-delete');
+$this-&gt;dispatch('close-wiremodal', 'confirm-delete');</code></pre>
+
+        <p class="api-label">Dismiss from inside markup</p>
+<pre><code>&lt;button data-wm-dismiss&gt;Cancel&lt;/button&gt;</code></pre>
+
+        <p class="api-hint">
+            Theme:&nbsp;<code>data-wire-theme</code> on <code>&lt;html&gt;</code> or any ancestor.
+            Mode:&nbsp;<code>data-wire-theme-mode</code> (<code>light</code>/<code>dark</code>).
+            Same convention used by <a href="https://github.com/edulazaro/wiretoast" target="_blank" rel="noopener">wiretoast</a> and the rest of the <code>wire*</code> family.
+        </p>
+    </div>
+
+    <footer class="credits">
+        Developed by <a href="https://edulazaro.com" target="_blank" rel="noopener">Edu Lázaro</a>
+        · <a href="https://github.com/edulazaro/wiremodal" target="_blank" rel="noopener">GitHub</a>
+        · <a href="https://github.com/edulazaro" target="_blank" rel="noopener">@edulazaro</a>
+    </footer>
+</div>
+
+<!-- ============================ DEMO MODALS ============================ -->
+
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-confirm" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-overlay" data-wm-dismiss></div>
+    <div class="wm-panel">
+        <div class="wm-header">
+            <h3 class="wm-title">¿Eliminar registro?</h3>
+            <button class="wm-close" data-wm-dismiss aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="wm-body">
+            <p>Esta acción no se puede deshacer. El registro y todos sus datos asociados se eliminarán permanentemente.</p>
+        </div>
+        <div class="wm-footer">
+            <div class="footer-actions">
+                <button class="btn" data-wm-dismiss>Cancelar</button>
+                <button class="btn danger" data-wm-dismiss>Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-form" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-overlay" data-wm-dismiss></div>
+    <div class="wm-panel">
+        <div class="wm-header">
+            <h3 class="wm-title">Nueva categoría</h3>
+            <button class="wm-close" data-wm-dismiss aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="wm-body">
+            <div class="field">
+                <label for="cat-name">Nombre</label>
+                <input id="cat-name" type="text" placeholder="ej. Marketing">
+            </div>
+            <div class="field">
+                <label for="cat-color">Color</label>
+                <input id="cat-color" type="text" placeholder="#10a37f">
+            </div>
+        </div>
+        <div class="wm-footer">
+            <div class="footer-actions">
+                <button class="btn" data-wm-dismiss>Cancelar</button>
+                <button class="btn primary" data-wm-dismiss>Crear</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-long" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-overlay" data-wm-dismiss></div>
+    <div class="wm-panel">
+        <div class="wm-header">
+            <h3 class="wm-title">Términos del servicio</h3>
+            <button class="wm-close" data-wm-dismiss aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="wm-body long-content">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+            <p>Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos.</p>
+            <p>Qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.</p>
+            <p>Consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat.</p>
+            <p>Voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.</p>
+            <p>Nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse.</p>
+            <p>Quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+        </div>
+        <div class="wm-footer">
+            <div class="footer-actions">
+                <button class="btn" data-wm-dismiss>Cerrar</button>
+                <button class="btn primary" data-wm-dismiss>Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-no-header" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-overlay" data-wm-dismiss></div>
+    <div class="wm-panel">
+        <div class="wm-body">
+            <p style="font-size:18px;font-weight:600;margin:0 0 8px;">Modal sin cabecera</p>
+            <p style="margin:0 0 16px;color:var(--wm-text-muted)">Útil para confirmaciones rápidas o anuncios donde no necesitas separar título y cuerpo.</p>
+            <div class="footer-actions">
+                <button class="btn" data-wm-dismiss>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-no-footer" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-overlay" data-wm-dismiss></div>
+    <div class="wm-panel">
+        <div class="wm-header">
+            <h3 class="wm-title">Información</h3>
+            <button class="wm-close" data-wm-dismiss aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="wm-body">
+            <p style="margin:0">Modal sin pie. La X y el click fuera se encargan de cerrar.</p>
+        </div>
+    </div>
+</div>
+
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-fullscreen" data-wm-size="md" data-wm-fullscreen="true" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-overlay" data-wm-dismiss></div>
+    <div class="wm-panel">
+        <div class="wm-header">
+            <h3 class="wm-title">Modal a pantalla completa</h3>
+            <button class="wm-close" data-wm-dismiss aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="wm-body">
+            <p>Útil para builders, editores, wizards multi-paso. El prop <code>fullscreen</code> en Blade activa este modo.</p>
+        </div>
+        <div class="wm-footer">
+            <div class="footer-actions">
+                <button class="btn" data-wm-dismiss>Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* =========================================================
+   wiremodal — framework-agnostic controller (inlined)
+   ========================================================= */
+(function () {
+    'use strict';
+    const STATE_OPEN = 'open';
+    const STATE_CLOSED = 'closed';
+    const BODY_LOCK_CLASS = 'wm-no-scroll';
+    const focusReturn = new WeakMap();
+
+    function findModal(name) {
+        if (!name) return null;
+        try { return document.querySelector(`.wm-modal[data-wm-name="${CSS.escape(name)}"]`); }
+        catch (e) { return null; }
+    }
+    function focusables(modal) {
+        return Array.from(modal.querySelectorAll(
+            'a[href], button:not([disabled]):not([data-wm-dismiss]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        ));
+    }
+    function lockBodyIfNeeded() { document.body.classList.add(BODY_LOCK_CLASS); }
+    function unlockBodyIfNoneOpen() {
+        if (!document.querySelector('.wm-modal[data-wm-state="open"]')) {
+            document.body.classList.remove(BODY_LOCK_CLASS);
+        }
+    }
+    function setState(modal, state) {
+        if (!modal) return;
+        if (modal.getAttribute('data-wm-state') === state) return;
+        modal.setAttribute('data-wm-state', state);
+        modal.setAttribute('aria-hidden', state === STATE_CLOSED ? 'true' : 'false');
+        if (state === STATE_OPEN) {
+            focusReturn.set(modal, document.activeElement);
+            lockBodyIfNeeded();
+            setTimeout(() => { const f = focusables(modal)[0]; if (f) f.focus(); }, 60);
+        } else {
+            unlockBodyIfNoneOpen();
+            const prev = focusReturn.get(modal);
+            if (prev && typeof prev.focus === 'function') { try { prev.focus(); } catch (e) {} }
+        }
+    }
+    function open(name) { setState(findModal(name), STATE_OPEN); }
+    function close(name) { setState(findModal(name), STATE_CLOSED); }
+    function closeAll() {
+        document.querySelectorAll('.wm-modal[data-wm-state="open"]').forEach(m => setState(m, STATE_CLOSED));
+    }
+    function isOpen(name) { const m = findModal(name); return !!m && m.getAttribute('data-wm-state') === STATE_OPEN; }
+    function eventName(e) {
+        if (!e || e.detail === undefined || e.detail === null) return null;
+        if (typeof e.detail === 'string') return e.detail;
+        if (typeof e.detail === 'object' && e.detail.name) return e.detail.name;
+        return null;
+    }
+
+    window.addEventListener('open-wiremodal',  e => { const n = eventName(e); if (n) open(n); });
+    window.addEventListener('close-wiremodal', e => { const n = eventName(e); if (n) close(n); });
+    window.addEventListener('open-modal',  e => { const n = eventName(e); if (n) open(n); });
+    window.addEventListener('close-modal', e => { const n = eventName(e); if (n) close(n); });
+
+    document.addEventListener('click', (e) => {
+        const dismiss = e.target.closest('[data-wm-dismiss]');
+        if (!dismiss) return;
+        const modal = dismiss.closest('.wm-modal');
+        if (!modal || modal.getAttribute('data-wm-state') !== STATE_OPEN) return;
+        const name = modal.getAttribute('data-wm-name');
+        if (name) close(name);
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape') return;
+        const opens = document.querySelectorAll('.wm-modal[data-wm-state="open"]');
+        if (!opens.length) return;
+        close(opens[opens.length - 1].getAttribute('data-wm-name'));
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Tab') return;
+        const opens = document.querySelectorAll('.wm-modal[data-wm-state="open"]');
+        if (!opens.length) return;
+        const top = opens[opens.length - 1];
+        const items = focusables(top);
+        if (!items.length) return;
+        const first = items[0]; const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+
+    window.Wiremodal = Object.freeze({ open, close, closeAll, isOpen });
+})();
+
+/* =========================================================
+   PAGE controls (theme/mode/size)
+   ========================================================= */
+(function () {
+    const html = document.documentElement;
+    const themeSel = document.getElementById('theme');
+    const modeSel = document.getElementById('mode');
+    const sizeSel = document.getElementById('size');
+
+    // Initial values
+    html.setAttribute('data-wire-theme', themeSel.value);
+
+    themeSel.addEventListener('change', e => {
+        const v = e.target.value;
+        if (v === 'flat') html.removeAttribute('data-wire-theme');
+        else html.setAttribute('data-wire-theme', v);
+    });
+    modeSel.addEventListener('change', e => {
+        const v = e.target.value;
+        if (v === 'auto') html.removeAttribute('data-wire-theme-mode');
+        else html.setAttribute('data-wire-theme-mode', v);
+    });
+    sizeSel.addEventListener('change', e => {
+        document.querySelectorAll('.wm-modal:not([data-wm-fullscreen="true"])').forEach(m => {
+            m.setAttribute('data-wm-size', e.target.value);
+        });
+    });
+})();
+</script>
+</body>
+</html>
