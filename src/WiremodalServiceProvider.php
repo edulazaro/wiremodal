@@ -45,15 +45,14 @@ class WiremodalServiceProvider extends ServiceProvider
         }
 
         \Livewire\Component::macro('openModal', function (string $name, array $data = []) {
-            if (empty($data)) {
-                $this->dispatch('open-wiremodal', $name);
-            } else {
-                $this->dispatch('open-wiremodal', name: $name, data: $data);
-            }
+            // Always use named args. Positional string dispatch is wrapped by
+            // Livewire into an array (e.detail = ['name']), which wiremodal's
+            // eventInfo does not match.
+            $this->dispatch('open-wiremodal', name: $name, data: $data);
         });
 
         \Livewire\Component::macro('closeModal', function (string $name) {
-            $this->dispatch('close-wiremodal', $name);
+            $this->dispatch('close-wiremodal', name: $name);
         });
     }
 }

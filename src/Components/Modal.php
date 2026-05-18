@@ -16,6 +16,7 @@ class Modal extends Component
     public bool $persistent;
     public bool $show;
     public ?string $triggerEvent;
+    public string $as;
 
     /**
      * Size catalog. Keep in sync with wiremodal.css `[data-wm-size="..."]` selectors.
@@ -34,6 +35,13 @@ class Modal extends Component
         '7xl' => '80rem',
     ];
 
+    /**
+     * Tags allowed for the modal panel. `div` is the default; `form` makes the
+     * panel render as `<form>` so consumers can attach `wire:submit` / native
+     * submit semantics (Enter key, type="submit" buttons in footer slot).
+     */
+    public const ALLOWED_AS = ['div', 'form'];
+
     public function __construct(
         string $name = '',
         string $title = '',
@@ -43,6 +51,7 @@ class Modal extends Component
         bool $persistent = false,
         bool $show = false,
         ?string $triggerEvent = null,
+        string $as = 'div',
     ) {
         $this->name = $name !== '' ? $name : (string) Str::uuid();
         $this->title = $title;
@@ -52,6 +61,18 @@ class Modal extends Component
         $this->persistent = $persistent;
         $this->show = $show;
         $this->triggerEvent = $triggerEvent;
+        $this->as = $this->validateAs($as);
+    }
+
+    protected function validateAs(string $as): string
+    {
+        if (!in_array($as, self::ALLOWED_AS, true)) {
+            throw new InvalidArgumentException(
+                "Invalid wiremodal as '{$as}'. Allowed: " . implode(', ', self::ALLOWED_AS)
+            );
+        }
+
+        return $as;
     }
 
     protected function validateSize(string $size): string

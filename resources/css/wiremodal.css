@@ -30,9 +30,9 @@
     --wm-overlay-bg: rgba(15, 23, 42, 0.55);
     --wm-overlay-filter: none;
 
-    --wm-padding-header: 16px 20px;
-    --wm-padding-body: 18px 20px;
-    --wm-padding-footer: 12px 20px;
+    --wm-padding-header: 20px 28px;
+    --wm-padding-body: 32px;
+    --wm-padding-footer: 16px 28px;
     --wm-gap: 16px;
 
     --wm-title-size: 18px;
@@ -229,6 +229,10 @@
     padding: var(--wm-padding-footer);
     border-top: 1px solid var(--wm-divider);
     flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 8px;
 }
 
 /* =========================================================
@@ -236,18 +240,15 @@
    ========================================================= */
 @media (max-width: 639px) {
     .wm-modal:not([data-wm-fullscreen="true"]) {
-        align-items: flex-end;
+        align-items: stretch;
         padding: 0;
     }
     .wm-modal:not([data-wm-fullscreen="true"]) .wm-panel {
         max-width: 100%;
         width: 100%;
-        max-height: 92vh;
-        border-radius: var(--wm-radius) var(--wm-radius) 0 0;
-        transform: translateY(100%);
-    }
-    .wm-modal:not([data-wm-fullscreen="true"])[data-wm-state="open"] .wm-panel {
-        transform: translateY(0);
+        min-height: 100vh;
+        max-height: none;
+        border-radius: 0;
     }
 }
 
@@ -422,9 +423,9 @@
 
     --wm-overlay-bg: rgba(0, 0, 0, 0.5);
     --wm-title-weight: 600;
-    --wm-padding-header: 14px 16px;
-    --wm-padding-body: 16px;
-    --wm-padding-footer: 14px 16px;
+    --wm-padding-header: 20px 28px;
+    --wm-padding-body: 32px;
+    --wm-padding-footer: 16px 28px;
 }
 [data-wire-theme="chatgpt"][data-wire-theme-mode="dark"],
 .dark[data-wire-theme="chatgpt"] {

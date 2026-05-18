@@ -11,10 +11,11 @@
     aria-modal="true"
     aria-hidden="{{ $show ? 'false' : 'true' }}"
     @if($title) aria-label="{{ $title }}" @endif
+    wire:ignore.self
 >
     <div class="wm-overlay" data-wm-dismiss></div>
 
-    <div class="wm-panel" role="document">
+    <{{ $as }} {{ $attributes->merge(['class' => 'wm-panel']) }} role="document">
         @if($title || isset($header))
             <div class="wm-header">
                 @isset($header)
@@ -41,5 +42,5 @@
                 {{ $footer }}
             </div>
         @endisset
-    </div>
+    </{{ $as }}>
 </div>

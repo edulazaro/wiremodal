@@ -86,7 +86,9 @@
             focusReturn.set(modal, document.activeElement);
             lockBodyIfNeeded();
             setTimeout(() => {
-                const first = focusables(modal)[0];
+                // Honor explicit [autofocus] inside the modal; fall back to first focusable.
+                const explicit = modal.querySelector('[autofocus]:not([disabled])');
+                const first = explicit || focusables(modal)[0];
                 if (first) first.focus();
             }, 60);
             const detail = { name, data: data || {} };
