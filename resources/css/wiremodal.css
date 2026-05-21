@@ -437,6 +437,39 @@
 }
 
 /* =========================================================
+   THEME: studio (legal SaaS — gray-900 + sharp corners +
+   shadow-2xl with subtle dark ring). Mimics the legacy
+   x-modal aesthetic of the crowdlegal pro panel.
+   ========================================================= */
+[data-wire-theme="studio"] {
+    --wire-bg: #ffffff;
+    --wire-bg-elevated: #ffffff;
+    --wire-text: #111827;            /* gray-900 */
+    --wire-text-muted: #6b7280;      /* gray-500 */
+    --wire-border: #e5e7eb;          /* gray-200 */
+    --wire-accent: #111827;          /* gray-900 — focus rings */
+    --wire-radius: 2px;              /* rounded-sm */
+    --wire-shadow:
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),  /* shadow-2xl */
+        0 0 0 1px rgba(17, 24, 39, 0.1);        /* ring-1 ring-gray-900/10 */
+    --wire-font: "Sora", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    --wm-overlay-bg: rgba(0, 0, 0, 0.5);
+    --wm-title-weight: 800;          /* font-extrabold */
+    --wm-padding-header: 16px 24px;  /* py-4 px-6 */
+    --wm-padding-body: 20px 24px;    /* py-5 px-6 */
+    --wm-padding-footer: 12px 24px;  /* py-3 px-6 */
+}
+[data-wire-theme="studio"][data-wire-theme-mode="dark"],
+.dark[data-wire-theme="studio"] {
+    --wire-bg: #111827;
+    --wire-bg-elevated: #111827;
+    --wire-text: #f3f4f6;
+    --wire-text-muted: #9ca3af;
+    --wire-border: #1f2937;
+}
+
+/* =========================================================
    THEME: synthwave (retro 80s, purple/magenta + neon glow)
    ========================================================= */
 [data-wire-theme="synthwave"] {
