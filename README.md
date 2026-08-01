@@ -1,3 +1,5 @@
+![Wiremodal](art/banner.png)
+
 # wiremodal
 
 Framework-agnostic modal/dialog system for Laravel, Livewire and Alpine. Pure CSS themes, custom-theme via CSS variables, drop-in API. Sibling of [wiretoast](https://github.com/edulazaro/wiretoast).
