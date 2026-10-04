@@ -618,3 +618,23 @@
     color: #f5f5f5;
     background: #404040;
 }
+
+/* =========================================================
+   THEME: toxic (swamp dark, lime accent) - 1:1 with wiretables, wirelist, wirepicker and wiretoast
+   Dark always, like neon: it has no light mode to fall into.
+   ========================================================= */
+[data-wire-theme="toxic"] {
+    --wire-bg: #0c1317;
+    --wire-bg-elevated: #111b20;
+    --wire-accent: #a3e635;
+    --wire-text: #ecfccb;
+    --wire-text-muted: rgba(217, 249, 157, 0.62);
+    --wire-border: rgba(163, 230, 53, 0.18);
+    --wire-border-strong: rgba(163, 230, 53, 0.4);
+    --wire-radius: 12px;
+    --wire-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(163, 230, 53, 0.08);
+
+    --wm-overlay-bg: rgba(4, 8, 10, 0.78);
+    --wm-title-color: var(--wire-accent);
+    --wm-divider: rgba(163, 230, 53, 0.14);
+}

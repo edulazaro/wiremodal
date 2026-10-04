@@ -179,6 +179,7 @@ Themes are applied via `[data-wire-theme="..."]` on any ancestor (commonly `<htm
 | `synthwave` | Retro 80s purple/magenta neon |
 | `megaflow` | Flowbite-style: clean white card |
 | `brutalist` | 1px black border, hard offset shadow, hover lift |
+| `toxic` | Swamp dark, lime accent; dark only |
 
 ```html
 <html data-wire-theme="claude" data-wire-theme-mode="light">
