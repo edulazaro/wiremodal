@@ -4,7 +4,7 @@
 
 Framework-agnostic modal/dialog system for Laravel, Livewire and Alpine. Pure CSS themes, custom-theme via CSS variables, drop-in API. Sibling of [wiretoast](https://github.com/edulazaro/wiretoast).
 
-10 themes · 11 sizes · 0 runtime deps · works with or without Livewire/Alpine.
+12 themes · 11 sizes · 0 runtime deps · works with or without Livewire/Alpine.
 
 ## Install
 
