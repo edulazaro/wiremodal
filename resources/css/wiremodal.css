@@ -49,6 +49,34 @@
     --wm-easing: cubic-bezier(0.16, 1, 0.3, 1);
 
     --wm-mobile-breakpoint: 640px;
+
+    /* Side nav (optional `nav` slot): a fixed column that stays put while the
+       body scrolls. Sized in rem so it follows the user's font size. */
+    --wm-nav-width: 12rem;
+    --wm-nav-bg: color-mix(in srgb, var(--wm-text) 3%, var(--wm-bg));
+    --wm-nav-padding: 12px;
+    --wm-nav-gap: 1px;
+    --wm-nav-group-gap: 14px;
+    --wm-nav-label-color: var(--wm-text-muted);
+    --wm-nav-label-size: 11px;
+    --wm-nav-label-weight: 400;
+    --wm-nav-label-spacing: normal;
+    --wm-nav-label-transform: none;
+    --wm-nav-item-size: 13px;
+    --wm-nav-item-height: 32px;
+    /* The panel keeps a fixed height when it has a nav: the sections column must
+       not grow and shrink as you move between sections. */
+    --wm-nav-panel-height: min(calc(100dvh - 2rem), 44rem);
+    --wm-nav-item-color: var(--wm-text-muted);
+    --wm-nav-item-hover-bg: color-mix(in srgb, var(--wm-text) 6%, transparent);
+    --wm-nav-item-active-bg: color-mix(in srgb, var(--wm-text) 10%, transparent);
+    --wm-nav-item-active-color: var(--wm-text);
+
+    /* Scrollbars. Without these the body falls back to the browser's own bar,
+       which is twice as thick and square, and looks nothing like the host app. */
+    --wm-scrollbar-size: 6px;
+    --wm-scrollbar-thumb: color-mix(in srgb, var(--wm-text) 22%, transparent);
+    --wm-scrollbar-thumb-hover: color-mix(in srgb, var(--wm-text) 45%, transparent);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -222,7 +250,150 @@
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
+    scrollbar-gutter: stable;
     padding: var(--wm-padding-body);
+}
+
+/* =========================================================
+   Scrollbars (body and nav)
+   ========================================================= */
+.wm-body,
+.wm-nav {
+    scrollbar-width: thin;                                          /* Firefox */
+    scrollbar-color: var(--wm-scrollbar-thumb) transparent;
+}
+.wm-body::-webkit-scrollbar,
+.wm-nav::-webkit-scrollbar {
+    width: var(--wm-scrollbar-size);
+    height: var(--wm-scrollbar-size);
+}
+.wm-body::-webkit-scrollbar-track,
+.wm-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+.wm-body::-webkit-scrollbar-thumb,
+.wm-nav::-webkit-scrollbar-thumb {
+    background-color: var(--wm-scrollbar-thumb);
+    border-radius: 999px;
+}
+.wm-body::-webkit-scrollbar-thumb:hover,
+.wm-nav::-webkit-scrollbar-thumb:hover {
+    background-color: var(--wm-scrollbar-thumb-hover);
+}
+
+/* =========================================================
+   Side nav (`nav` slot)
+   The nav runs the full height of the panel and sits OUTSIDE the
+   body's scroll, so the sections stay reachable however long the
+   content is. That is what makes a settings modal usable.
+   ========================================================= */
+.wm-modal[data-wm-nav="true"] .wm-panel {
+    flex-direction: row;
+    height: var(--wm-nav-panel-height);
+}
+
+.wm-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+}
+
+.wm-nav {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wm-nav-gap);
+    width: var(--wm-nav-width);
+    flex-shrink: 0;
+    overflow-y: auto;
+    padding: var(--wm-nav-padding);
+    background: var(--wm-nav-bg);
+    border-right: 1px solid var(--wm-divider);
+}
+
+/* A fixed strip at the top of the nav (a search box, a plan badge) with the
+   entries scrolling under it. Only applies when the consumer uses the parts. */
+.wm-nav:has(.wm-nav-list) {
+    overflow: hidden;
+}
+.wm-nav-top {
+    flex-shrink: 0;
+}
+.wm-nav-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wm-nav-gap);
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+/* A labelled block of entries ("Subscription" > Plan / Usage / Invoices). */
+.wm-nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--wm-nav-gap);
+}
+.wm-nav-group + .wm-nav-group {
+    margin-top: var(--wm-nav-group-gap);
+}
+
+.wm-nav-label {
+    display: block;
+    padding: 0 8px 4px;
+    font-size: var(--wm-nav-label-size);
+    font-weight: var(--wm-nav-label-weight);
+    letter-spacing: var(--wm-nav-label-spacing);
+    text-transform: var(--wm-nav-label-transform);
+    color: var(--wm-nav-label-color);
+}
+
+.wm-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: var(--wm-nav-item-height);
+    appearance: none;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    font-size: var(--wm-nav-item-size);
+    text-align: left;
+    text-decoration: none;
+    color: var(--wm-nav-item-color);
+    padding: 0 8px;
+    border-radius: var(--wm-radius);
+    transition: background 120ms ease, color 120ms ease;
+}
+.wm-nav-item:hover {
+    background: var(--wm-nav-item-hover-bg);
+    color: var(--wm-nav-item-active-color);
+}
+.wm-nav-item:focus-visible {
+    outline: 2px solid var(--wire-accent);
+    outline-offset: -2px;
+}
+.wm-nav-item[aria-current="page"],
+.wm-nav-item.is-active {
+    background: var(--wm-nav-item-active-bg);
+    color: var(--wm-nav-item-active-color);
+    font-weight: 500;
+}
+/* The label of an entry: one line, clipped rather than wrapped. */
+.wm-nav-item > span {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.wm-nav-item svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
 }
 
 .wm-footer {
@@ -249,6 +420,44 @@
         min-height: 100vh;
         max-height: none;
         border-radius: 0;
+    }
+
+    /* A 13rem column eats half a phone, so the nav becomes a scrollable row of
+       entries. The group labels go: on one line they read as more entries. */
+    .wm-modal[data-wm-nav="true"] .wm-panel {
+        flex-direction: column;
+        height: auto;
+    }
+    .wm-modal[data-wm-nav="true"] .wm-nav:has(.wm-nav-list) {
+        overflow: visible;
+    }
+    .wm-modal[data-wm-nav="true"] .wm-nav-list {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+    }
+    .wm-modal[data-wm-nav="true"] .wm-nav {
+        flex-direction: row;
+        width: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 8px 12px;
+        border-right: 0;
+        border-bottom: 1px solid var(--wm-divider);
+    }
+    .wm-modal[data-wm-nav="true"] .wm-nav-group {
+        flex-direction: row;
+    }
+    .wm-modal[data-wm-nav="true"] .wm-nav-group + .wm-nav-group {
+        margin-top: 0;
+        margin-left: var(--wm-nav-gap);
+    }
+    .wm-modal[data-wm-nav="true"] .wm-nav-label {
+        display: none;
+    }
+    .wm-modal[data-wm-nav="true"] .wm-nav-item {
+        width: auto;
+        white-space: nowrap;
     }
 }
 
@@ -459,9 +668,20 @@
     --wm-padding-header: 16px 24px;  /* py-4 px-6 */
     --wm-padding-body: 20px 24px;    /* py-5 px-6 */
     --wm-padding-footer: 12px 24px;  /* py-3 px-6 */
+
+    --wm-nav-padding: 12px;
+    --wm-nav-bg: #f9fafb;                   /* gray-50 */
+    --wm-nav-item-hover-bg: #f3f4f6;        /* gray-100 */
+    --wm-nav-item-active-bg: #e5e7eb;       /* gray-200 */
+    --wm-nav-label-color: #9ca3af;          /* gray-400 */
+    --wm-scrollbar-thumb: #d1d5db;          /* gray-300 */
+    --wm-scrollbar-thumb-hover: #6b7280;    /* gray-500 */
 }
 [data-wire-theme="studio"][data-wire-theme-mode="dark"],
 .dark[data-wire-theme="studio"] {
+    --wm-nav-bg: #0b1220;
+    --wm-nav-item-hover-bg: #1f2937;
+    --wm-nav-item-active-bg: #1f2937;
     --wire-bg: #111827;
     --wire-bg-elevated: #111827;
     --wire-text: #f3f4f6;

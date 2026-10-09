@@ -203,17 +203,76 @@ Define your own by setting CSS variables on a scope:
 
 For modal-specific overrides, use `--wm-*` variables (see `wiremodal.css` for the full list).
 
+## Side nav
+
+Pass a `nav` slot and the panel becomes two columns: a fixed sections column and
+the content. The nav runs the full height of the panel and sits outside the body's
+scroll, so the sections stay reachable however long the content is.
+
+```blade
+<x-wiremodal name="settings" size="5xl" title="Settings">
+    <x-slot:nav>
+        <div class="wm-nav-group">
+            <span class="wm-nav-label">Account</span>
+            <button type="button" class="wm-nav-item is-active" aria-current="page">
+                <span>General</span>
+            </button>
+            <button type="button" class="wm-nav-item"><span>Privacy</span></button>
+        </div>
+
+        <div class="wm-nav-group">
+            <span class="wm-nav-label">Subscription</span>
+            <button type="button" class="wm-nav-item"><span>Plan</span></button>
+            <button type="button" class="wm-nav-item"><span>Usage</span></button>
+            <button type="button" class="wm-nav-item"><span>Invoices</span></button>
+        </div>
+    </x-slot:nav>
+
+    <x-slot:body>
+        ...
+    </x-slot:body>
+</x-wiremodal>
+```
+
+| Part | What it is |
+|---|---|
+| `.wm-nav-group` | A block of entries. Consecutive groups are spaced apart. |
+| `.wm-nav-label` | The group heading. Hidden on phones, where the nav is a row. |
+| `.wm-nav-item` | One entry: `button` or `a`, one line, an optional leading `svg`. Mark the current one with `aria-current="page"` or `.is-active`. |
+| `.wm-nav-top` | Optional fixed strip at the top (a search box), with `.wm-nav-list` holding the scrolling entries. |
+
+A modal with a nav keeps a fixed height (`--wm-nav-panel-height`) so the column
+does not grow and shrink as you move between sections. On phones the nav turns
+into a scrollable row of entries and the panel goes back to its own height.
+
+Sizing and colours come from `--wm-nav-*`; the full list is in `wiremodal.css`.
+
+## Scrollbars
+
+The body and the nav get a thin scrollbar in every theme, because the browser's
+own is about twice as thick and square, and looks nothing like the host app. The
+thumb is derived from the theme's text colour, so it follows light and dark on its
+own; `--wm-scrollbar-size`, `--wm-scrollbar-thumb` and `--wm-scrollbar-thumb-hover`
+override it.
+
 ## Anatomy
 
 ```
-.wm-modal[data-wm-name][data-wm-state="open|closed"][data-wm-size][data-wm-fullscreen][data-wm-persistent]
+.wm-modal[data-wm-name][data-wm-state="open|closed"][data-wm-size][data-wm-fullscreen][data-wm-persistent][data-wm-nav]
     .wm-overlay[data-wm-dismiss]
     .wm-panel
-        .wm-header
-            .wm-title
-            .wm-close[data-wm-dismiss]
-        .wm-body
-        .wm-footer
+        .wm-nav                     (only with a `nav` slot)
+            .wm-nav-top
+            .wm-nav-list
+                .wm-nav-group
+                    .wm-nav-label
+                    .wm-nav-item[aria-current="page"]
+        .wm-content
+            .wm-header
+                .wm-title
+                .wm-close[data-wm-dismiss]
+            .wm-body
+            .wm-footer
 ```
 
 Lifecycle events (fire on both modal element and window):
