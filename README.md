@@ -239,7 +239,22 @@ scroll, so the sections stay reachable however long the content is.
 | `.wm-nav-group` | A block of entries. Consecutive groups are spaced apart. |
 | `.wm-nav-label` | The group heading. Hidden on phones, where the nav is a row. |
 | `.wm-nav-item` | One entry: `button` or `a`, one line, an optional leading `svg`. Mark the current one with `aria-current="page"` or `.is-active`. |
-| `.wm-nav-top` | Optional fixed strip at the top (a search box), with `.wm-nav-list` holding the scrolling entries. |
+| `.wm-nav-top` | Optional fixed strip at the top, with `.wm-nav-list` holding the scrolling entries under it. |
+| `.wm-nav-search` | An `input` in `.wm-nav-top`, styled by the theme. Filtering the entries is the consumer's job. |
+
+With twenty sections rather than six, put a search field in `.wm-nav-top` and the
+groups in `.wm-nav-list`: the field stays in place and the entries scroll under it.
+
+```blade
+<x-slot:nav>
+    <div class="wm-nav-top">
+        <input type="search" class="wm-nav-search" placeholder="Search" wire:model.live="q">
+    </div>
+    <div class="wm-nav-list">
+        <div class="wm-nav-group">...</div>
+    </div>
+</x-slot:nav>
+```
 
 A modal with a nav keeps a fixed height (`--wm-nav-panel-height`) so the column
 does not grow and shrink as you move between sections. On phones the nav turns

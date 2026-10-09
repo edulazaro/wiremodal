@@ -64,6 +64,8 @@
     --wm-nav-label-transform: none;
     --wm-nav-item-size: 13px;
     --wm-nav-item-height: 32px;
+    --wm-nav-search-bg: var(--wm-bg);
+    --wm-nav-search-border: var(--wm-border-color);
     /* The panel keeps a fixed height when it has a nav: the sections column must
        not grow and shrink as you move between sections. */
     --wm-nav-panel-height: min(calc(100dvh - 2rem), 44rem);
@@ -319,6 +321,30 @@
 }
 .wm-nav-top {
     flex-shrink: 0;
+    padding-bottom: 8px;
+}
+
+/* The search field of a long nav. Styled here so filtering a list of twenty
+   sections does not force the consumer to re-derive the theme on an input. */
+.wm-nav-search {
+    box-sizing: border-box;
+    width: 100%;
+    height: var(--wm-nav-item-height);
+    appearance: none;
+    font: inherit;
+    font-size: var(--wm-nav-item-size);
+    color: var(--wm-text);
+    background: var(--wm-nav-search-bg);
+    border: 1px solid var(--wm-nav-search-border);
+    border-radius: var(--wm-radius);
+    padding: 0 8px;
+}
+.wm-nav-search::placeholder {
+    color: var(--wm-text-muted);
+}
+.wm-nav-search:focus-visible {
+    outline: 2px solid var(--wire-accent);
+    outline-offset: -2px;
 }
 .wm-nav-list {
     display: flex;
@@ -674,6 +700,7 @@
     --wm-nav-item-hover-bg: #f3f4f6;        /* gray-100 */
     --wm-nav-item-active-bg: #e5e7eb;       /* gray-200 */
     --wm-nav-label-color: #9ca3af;          /* gray-400 */
+    --wm-nav-search-border: #d1d5db;        /* gray-300 */
     --wm-scrollbar-thumb: #d1d5db;          /* gray-300 */
     --wm-scrollbar-thumb-hover: #6b7280;    /* gray-500 */
 }
