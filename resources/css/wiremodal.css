@@ -70,6 +70,8 @@
        not grow and shrink as you move between sections. */
     --wm-nav-panel-height: min(calc(100dvh - 2rem), 44rem);
     --wm-nav-item-color: var(--wm-text-muted);
+    --wm-nav-item-weight: 500;
+    --wm-nav-item-active-weight: 600;
     --wm-nav-item-hover-bg: color-mix(in srgb, var(--wm-text) 6%, transparent);
     --wm-nav-item-active-bg: color-mix(in srgb, var(--wm-text) 10%, transparent);
     --wm-nav-item-active-color: var(--wm-text);
@@ -387,6 +389,7 @@
     cursor: pointer;
     font: inherit;
     font-size: var(--wm-nav-item-size);
+    font-weight: var(--wm-nav-item-weight);
     text-align: left;
     text-decoration: none;
     color: var(--wm-nav-item-color);
@@ -406,7 +409,7 @@
 .wm-nav-item.is-active {
     background: var(--wm-nav-item-active-bg);
     color: var(--wm-nav-item-active-color);
-    font-weight: 500;
+    font-weight: var(--wm-nav-item-active-weight);
 }
 /* The label of an entry: one line, clipped rather than wrapped. */
 .wm-nav-item > span {
