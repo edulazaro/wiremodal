@@ -23,8 +23,6 @@
     @if($title) aria-label="{{ $title }}" @endif
     wire:ignore.self
 >
-    <div class="wm-overlay" data-wm-dismiss></div>
-
     <{{ $as }} {{ $attributes->merge(['class' => 'wm-panel']) }} role="document">
         {{-- With a `nav` slot the panel becomes two columns and the nav runs the
              full height, so the sections stay in place while the content scrolls.

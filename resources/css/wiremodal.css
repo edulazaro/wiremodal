@@ -141,62 +141,43 @@
     opacity: 1;
 }
 
-/* Con otra modal abierta por encima, lo que cambia es el PANEL, no el fundido.
-   La de abajo conserva el suyo y esconde su panel; la de arriba no pone otro. Asi
-   hay un fundido y un panel, y el fundido es siempre el mismo elemento: no se crea
-   ni se destruye al pasar de una a otra, de modo que no puede parpadear.
-
-   Tres formas de estar por encima, y hacen falta las tres:
-     - DESCENDIENTE: declarada dentro del cuerpo de la otra.
-     - HERMANA POSTERIOR: las dos teleportadas al <body>.
-     - HERMANA DEL ANCESTRO: la de abajo cuelga de un envoltorio (el div raiz que
-       Livewire exige en un componente) y la de arriba se teleporto al <body>, asi
-       que no son hermanas entre si: lo es el envoltorio. Sin este caso, el de mas
-       habitual en una aplicacion Livewire, nada de lo anterior casa. */
-.wm-modal[data-wm-state="open"]:has(.wm-modal[data-wm-state="open"]) > .wm-panel,
-.wm-modal[data-wm-state="open"]:has(~ .wm-modal[data-wm-state="open"]) > .wm-panel,
-:has(~ .wm-modal[data-wm-state="open"]) > .wm-modal[data-wm-state="open"] > .wm-panel {
-    visibility: hidden;
-}
-.wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"] > .wm-overlay,
-.wm-modal[data-wm-state="open"] ~ .wm-modal[data-wm-state="open"] > .wm-overlay,
-:has(> .wm-modal[data-wm-state="open"]) ~ .wm-modal[data-wm-state="open"] > .wm-overlay {
-    visibility: hidden;
-}
-/* Lo que si vuelve a verse es el panel de la de dentro, porque `visibility` se
-   hereda del de fuera, que acaba de ocultarse. */
-.wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"],
-.wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"] > .wm-panel {
-    visibility: visible;
-}
-
-/* El panel que contiene otra modal pierde el transform: un ancestro transformado es
-   el contenedor de los `fixed` que lleva dentro, y `transition: none` es la otra
-   mitad, porque uno a medio animar sigue siendo contenedor. Con `teleport` no hace
-   falta, pero una modal anidada sin teleportar sigue dependiendo de el. */
-.wm-modal[data-wm-state="open"]:has(.wm-modal[data-wm-state="open"]) > .wm-panel {
-    transform: none;
-    transition: none;
-}
-
-/* Cubierta por otra abierta encima: se aparta y vuelve cuando aquella se cierra.
-   El JS pone y quita el atributo; esta regla gana a la de arriba por tener un
-   atributo mas, sin necesidad de !important. */
+/* Con otra abierta encima, esta esconde su PANEL y nada mas: el fundido es uno y
+   se queda donde esta, asi que al pasar de una modal a otra no se destruye ni se
+   crea ninguno y no hay nada que pueda parpadear. El atributo lo pone y lo quita
+   el JS, que cuenta las abiertas y no mira la forma del arbol: por eso funciona
+   igual con una modal anidada, teleportada o colgada de otro envoltorio. */
 .wm-modal[data-wm-state="open"][data-wm-covered="true"] {
     pointer-events: none;
+}
+.wm-modal[data-wm-state="open"][data-wm-covered="true"] > .wm-panel {
     visibility: hidden;
-    opacity: 0;
 }
 
 /* =========================================================
-   Overlay
+   Backdrop - ONE for the page, created by the JS on the body
+
+   It is not inside any modal on purpose: a per-modal overlay dimmed the page twice
+   when two were open, was morphed by Livewire on every re-render (coming back
+   without its transition, which read as a flash), and inherited the containing
+   block of any ancestor with a `transform`, so it covered that ancestor's box
+   instead of the viewport.
    ========================================================= */
-.wm-overlay {
-    position: absolute;
+.wm-backdrop {
+    position: fixed;
     inset: 0;
+    z-index: calc(var(--wm-z-index) - 1);
     background: var(--wm-overlay-bg);
     backdrop-filter: var(--wm-overlay-filter);
     -webkit-backdrop-filter: var(--wm-overlay-filter);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--wm-duration) var(--wm-easing),
+                visibility var(--wm-duration) var(--wm-easing);
+}
+
+.wm-backdrop[data-wm-state="open"] {
+    opacity: 1;
+    visibility: visible;
 }
 
 /* =========================================================

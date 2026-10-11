@@ -32,6 +32,7 @@
     const STATE_OPEN = 'open';
     const STATE_CLOSED = 'closed';
     const BODY_LOCK_CLASS = 'wm-no-scroll';
+    const BACKDROP_ID = 'wm-backdrop';
 
     const focusReturn = new WeakMap();
     const pendingResolvers = new Map();  // name -> resolver function for Wiremodal.open() Promise
@@ -62,6 +63,48 @@
         }
     }
 
+    /**
+     * ONE backdrop for the whole page, created here and parented to the body.
+     *
+     * Each modal used to paint its own, which cost three things. Two modals open at
+     * once dimmed the page twice. The node lived inside a Livewire component, so a
+     * re-render morphed it and it came back without its transition, which read as a
+     * flash. And being inside the page it inherited whatever containing block an
+     * ancestor with `transform` imposed, so it covered that ancestor's box instead of
+     * the viewport. On the body, under no component, none of that applies.
+     */
+    function backdrop() {
+        let el = document.getElementById(BACKDROP_ID);
+
+        if (!el) {
+            el = document.createElement('div');
+            el.id = BACKDROP_ID;
+            el.className = 'wm-backdrop';
+            el.setAttribute('data-wm-state', STATE_CLOSED);
+            el.addEventListener('click', () => {
+                const top = topMostOpen();
+                if (top && top.getAttribute('data-wm-persistent') !== 'true') {
+                    setState(top, STATE_CLOSED, undefined, undefined, 'dismiss');
+                }
+            });
+            document.body.appendChild(el);
+        }
+
+        return el;
+    }
+
+    // The last one opened, which is the one on top and the one Escape and the
+    // backdrop act on.
+    function topMostOpen() {
+        const open = document.querySelectorAll('.wm-modal[data-wm-state="open"]');
+        return open.length ? open[open.length - 1] : null;
+    }
+
+    function syncBackdrop() {
+        const open = document.querySelectorAll('.wm-modal[data-wm-state="open"]').length;
+        backdrop().setAttribute('data-wm-state', open ? STATE_OPEN : STATE_CLOSED);
+    }
+
     // Returns true if the close happened, false if cancelled by beforeclose handler.
     function setState(modal, state, data, result, reason) {
         if (!modal) return false;
@@ -81,6 +124,7 @@
 
         modal.setAttribute('data-wm-state', state);
         modal.setAttribute('aria-hidden', state === STATE_CLOSED ? 'true' : 'false');
+        syncBackdrop();
 
         if (state === STATE_OPEN) {
             // A modal opened over another hides the one underneath instead of stacking
@@ -179,9 +223,6 @@
         const modal = dismiss.closest('.wm-modal');
         if (!modal) return;
         if (modal.getAttribute('data-wm-state') !== STATE_OPEN) return;
-
-        // Persistent: skip overlay clicks only. Buttons inside still work.
-        if (modal.getAttribute('data-wm-persistent') === 'true' && dismiss.classList.contains('wm-overlay')) return;
 
         const name = modal.getAttribute('data-wm-name');
         if (name) setState(modal, STATE_CLOSED, undefined, undefined, 'dismiss');
