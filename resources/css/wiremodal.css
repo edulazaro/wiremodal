@@ -136,9 +136,16 @@
 }
 
 .wm-modal[data-wm-state="open"] {
-    pointer-events: auto;
     visibility: visible;
     opacity: 1;
+}
+
+/* El hueco alrededor del panel NO intercepta el raton: asi el clic ahi llega al
+   fundido, que esta debajo y es quien cierra. Con el overlay dentro de cada modal
+   ese clic lo recibia el overlay; ahora que hay uno solo y vive en el body, la
+   modal abierta se lo comia al cubrir la pantalla entera. */
+.wm-modal[data-wm-state="open"] > .wm-panel {
+    pointer-events: auto;
 }
 
 /* Con otra abierta encima, esta esconde su PANEL y nada mas: el fundido es uno y
