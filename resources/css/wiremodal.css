@@ -141,6 +141,15 @@
     opacity: 1;
 }
 
+/* Cubierta por otra abierta encima: se aparta y vuelve cuando aquella se cierra.
+   El JS pone y quita el atributo; esta regla gana a la de arriba por tener un
+   atributo mas, sin necesidad de !important. */
+.wm-modal[data-wm-state="open"][data-wm-covered="true"] {
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+}
+
 /* =========================================================
    Overlay
    ========================================================= */
