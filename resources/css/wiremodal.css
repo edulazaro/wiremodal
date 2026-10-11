@@ -142,19 +142,25 @@
 }
 
 /* Con otra modal abierta por encima, lo que cambia es el PANEL, no el fundido.
-   El de abajo conserva el suyo y esconde su panel; el de arriba no pone otro. Asi
+   La de abajo conserva el suyo y esconde su panel; la de arriba no pone otro. Asi
    hay un fundido y un panel, y el fundido es siempre el mismo elemento: no se crea
    ni se destruye al pasar de una a otra, de modo que no puede parpadear.
 
-   Dos formas de estar por encima, y hacen falta las dos: una modal declarada dentro
-   del cuerpo de otra es su DESCENDIENTE, y una teleportada al <body> acaba siendo su
-   HERMANA POSTERIOR. */
+   Tres formas de estar por encima, y hacen falta las tres:
+     - DESCENDIENTE: declarada dentro del cuerpo de la otra.
+     - HERMANA POSTERIOR: las dos teleportadas al <body>.
+     - HERMANA DEL ANCESTRO: la de abajo cuelga de un envoltorio (el div raiz que
+       Livewire exige en un componente) y la de arriba se teleporto al <body>, asi
+       que no son hermanas entre si: lo es el envoltorio. Sin este caso, el de mas
+       habitual en una aplicacion Livewire, nada de lo anterior casa. */
 .wm-modal[data-wm-state="open"]:has(.wm-modal[data-wm-state="open"]) > .wm-panel,
-.wm-modal[data-wm-state="open"]:has(~ .wm-modal[data-wm-state="open"]) > .wm-panel {
+.wm-modal[data-wm-state="open"]:has(~ .wm-modal[data-wm-state="open"]) > .wm-panel,
+:has(~ .wm-modal[data-wm-state="open"]) > .wm-modal[data-wm-state="open"] > .wm-panel {
     visibility: hidden;
 }
 .wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"] > .wm-overlay,
-.wm-modal[data-wm-state="open"] ~ .wm-modal[data-wm-state="open"] > .wm-overlay {
+.wm-modal[data-wm-state="open"] ~ .wm-modal[data-wm-state="open"] > .wm-overlay,
+:has(> .wm-modal[data-wm-state="open"]) ~ .wm-modal[data-wm-state="open"] > .wm-overlay {
     visibility: hidden;
 }
 /* Lo que si vuelve a verse es el panel de la de dentro, porque `visibility` se
