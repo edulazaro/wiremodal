@@ -1,3 +1,12 @@
+{{-- `teleport` saca la modal al <body> antes de pintarla. Hace falta cuando se
+     declara dentro del contenido de la pagina y no al final del documento: un
+     ancestro con `transform`, `filter` o `contain` pasa a ser el contenedor de los
+     `position: fixed` que lleva dentro, y entonces el overlay cubre el area de ese
+     ancestro en vez de la ventana. El mismo motivo por el que los desplegables de
+     esta casa se teleportan. Necesita Alpine, de ahi que sea opcional. --}}
+@if($teleport)
+<template x-teleport="body">
+@endif
 <div
     class="wm-modal"
     data-wire-component="modal"
@@ -56,3 +65,6 @@
         </div>
     </{{ $as }}>
 </div>
+@if($teleport)
+</template>
+@endif

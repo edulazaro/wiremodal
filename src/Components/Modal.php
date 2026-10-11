@@ -17,6 +17,7 @@ class Modal extends Component
     public bool $show;
     public ?string $triggerEvent;
     public string $as;
+    public bool $teleport;
 
     /**
      * Size catalog. Keep in sync with wiremodal.css `[data-wm-size="..."]` selectors.
@@ -52,6 +53,7 @@ class Modal extends Component
         bool $show = false,
         ?string $triggerEvent = null,
         string $as = 'div',
+        bool $teleport = false,
     ) {
         $this->name = $name !== '' ? $name : (string) Str::uuid();
         $this->title = $title;
@@ -62,6 +64,7 @@ class Modal extends Component
         $this->show = $show;
         $this->triggerEvent = $triggerEvent;
         $this->as = $this->validateAs($as);
+        $this->teleport = $teleport;
     }
 
     protected function validateAs(string $as): string
