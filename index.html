@@ -4,178 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wiremodal Preview · Modal/dialog for Laravel, Livewire and Alpine</title>
+<!-- El CSS y el JS del paquete, enlazados en vez de copiados: la copia que
+     habia aqui se quedo atras y la demo dejo de ensenar lo que el paquete
+     hace de verdad. Lo que sigue en el <style> son los estilos de ESTA
+     pagina, mas los detalles que la demo anade a algunos temas. -->
+<link rel="stylesheet" href="resources/css/wiremodal.css">
 <style>
-/* =========================================================
-   wiremodal design tokens
-   Meta-tokens (--wire-*) are shared with the wire* family
-   (wiretoast, wireforms, wirekit). Component-specific tokens
-   live under --wm-*. Override either layer to customise.
-   ========================================================= */
-:root {
-    --wire-bg: #ffffff;
-    --wire-bg-elevated: #ffffff;
-    --wire-text: #0f172a;
-    --wire-text-muted: #64748b;
-    --wire-border: rgba(15, 23, 42, 0.08);
-    --wire-border-strong: rgba(15, 23, 42, 0.16);
-    --wire-accent: #2563eb;
-    --wire-radius: 10px;
-    --wire-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
-    --wire-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-
-    --wm-bg: var(--wire-bg-elevated);
-    --wm-text: var(--wire-text);
-    --wm-text-muted: var(--wire-text-muted);
-    --wm-border-color: var(--wire-border);
-    --wm-border-width: 1px;
-    --wm-radius: var(--wire-radius);
-    --wm-shadow: var(--wire-shadow);
-    --wm-font: var(--wire-font);
-    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
-    --wm-overlay-filter: none;
-    --wm-padding-header: 16px 20px;
-    --wm-padding-body: 18px 20px;
-    --wm-padding-footer: 12px 20px;
-    --wm-gap: 16px;
-    --wm-title-size: 18px;
-    --wm-title-weight: 700;
-    --wm-title-color: var(--wm-text);
-    --wm-divider: var(--wm-border-color);
-    --wm-close-color: var(--wm-text-muted);
-    --wm-close-hover-color: var(--wm-text);
-    --wm-max-height: 85vh;
-    --wm-z-index: 2147483600;
-    --wm-duration: 220ms;
-    --wm-easing: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --wire-bg: #0f1115;
-        --wire-bg-elevated: #16181d;
-        --wire-text: #f1f5f9;
-        --wire-text-muted: #94a3b8;
-        --wire-border: rgba(255, 255, 255, 0.1);
-        --wire-border-strong: rgba(255, 255, 255, 0.18);
-        --wire-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.35);
-        --wm-overlay-bg: rgba(0, 0, 0, 0.65);
-    }
-}
-
-[data-wire-theme-mode="dark"], .dark {
-    --wire-bg: #0f1115;
-    --wire-bg-elevated: #16181d;
-    --wire-text: #f1f5f9;
-    --wire-text-muted: #94a3b8;
-    --wire-border: rgba(255, 255, 255, 0.1);
-    --wire-border-strong: rgba(255, 255, 255, 0.18);
-    --wire-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 4px 14px rgba(0, 0, 0, 0.35);
-    --wm-overlay-bg: rgba(0, 0, 0, 0.65);
-}
-
-[data-wire-theme-mode="light"] {
-    --wire-bg: #ffffff;
-    --wire-bg-elevated: #ffffff;
-    --wire-text: #0f172a;
-    --wire-text-muted: #64748b;
-    --wire-border: rgba(15, 23, 42, 0.08);
-    --wire-border-strong: rgba(15, 23, 42, 0.16);
-    --wire-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
-    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
-}
-
-.wm-no-scroll { overflow: hidden; }
-
-.wm-modal {
-    position: fixed; inset: 0;
-    z-index: var(--wm-z-index);
-    display: flex; align-items: center; justify-content: center;
-    padding: 16px;
-    pointer-events: none; visibility: hidden; opacity: 0;
-    transition: opacity var(--wm-duration) var(--wm-easing),
-                visibility var(--wm-duration) var(--wm-easing);
-    font-family: var(--wm-font);
-}
-.wm-modal[data-wm-state="open"] { pointer-events: auto; visibility: visible; opacity: 1; }
-
-.wm-overlay {
-    position: absolute; inset: 0;
-    background: var(--wm-overlay-bg);
-    backdrop-filter: var(--wm-overlay-filter);
-    -webkit-backdrop-filter: var(--wm-overlay-filter);
-}
-
-.wm-panel {
-    position: relative;
-    display: flex; flex-direction: column;
-    width: 100%;
-    max-width: var(--wm-max-width, 42rem);
-    max-height: var(--wm-max-height);
-    background: var(--wm-bg);
-    color: var(--wm-text);
-    border: var(--wm-border-width) solid var(--wm-border-color);
-    border-radius: var(--wm-radius);
-    box-shadow: var(--wm-shadow);
-    overflow: hidden;
-    transform: translateY(20px) scale(0.96);
-    transition: transform var(--wm-duration) var(--wm-easing);
-}
-.wm-modal[data-wm-state="open"] .wm-panel { transform: translateY(0) scale(1); }
-
-.wm-modal[data-wm-size="xs"]  .wm-panel { --wm-max-width: 20rem;  }
-.wm-modal[data-wm-size="sm"]  .wm-panel { --wm-max-width: 24rem;  }
-.wm-modal[data-wm-size="md"]  .wm-panel { --wm-max-width: 28rem;  }
-.wm-modal[data-wm-size="lg"]  .wm-panel { --wm-max-width: 32rem;  }
-.wm-modal[data-wm-size="xl"]  .wm-panel { --wm-max-width: 36rem;  }
-.wm-modal[data-wm-size="2xl"] .wm-panel { --wm-max-width: 42rem;  }
-.wm-modal[data-wm-size="3xl"] .wm-panel { --wm-max-width: 48rem;  }
-.wm-modal[data-wm-size="4xl"] .wm-panel { --wm-max-width: 56rem;  }
-.wm-modal[data-wm-size="5xl"] .wm-panel { --wm-max-width: 64rem;  }
-.wm-modal[data-wm-size="6xl"] .wm-panel { --wm-max-width: 72rem;  }
-.wm-modal[data-wm-size="7xl"] .wm-panel { --wm-max-width: 80rem;  }
-
-.wm-modal[data-wm-fullscreen="true"] { padding: 0; }
-.wm-modal[data-wm-fullscreen="true"] .wm-panel {
-    max-width: 100vw; max-height: 100vh; width: 100vw; height: 100vh;
-    border-radius: 0; transform: scale(1) translateY(0);
-}
-
-.wm-header {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: var(--wm-gap);
-    padding: var(--wm-padding-header);
-    border-bottom: 1px solid var(--wm-divider);
-    flex-shrink: 0;
-}
-.wm-title {
-    margin: 0;
-    font-size: var(--wm-title-size); font-weight: var(--wm-title-weight);
-    line-height: 1.2; color: var(--wm-title-color);
-}
-.wm-close {
-    appearance: none; background: transparent; border: 0;
-    color: var(--wm-close-color); cursor: pointer;
-    padding: 4px; margin: -4px; line-height: 0;
-    border-radius: 4px;
-    transition: color 120ms ease, background 120ms ease;
-}
-.wm-close:hover { color: var(--wm-close-hover-color); }
-.wm-close:focus-visible { outline: 2px solid var(--wire-accent); outline-offset: 2px; }
-.wm-close svg { display: block; }
-.wm-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--wm-padding-body); }
-.wm-footer { padding: var(--wm-padding-footer); border-top: 1px solid var(--wm-divider); flex-shrink: 0; }
-
-@media (max-width: 639px) {
-    .wm-modal:not([data-wm-fullscreen="true"]) { align-items: flex-end; padding: 0; }
-    .wm-modal:not([data-wm-fullscreen="true"]) .wm-panel {
-        max-width: 100%; width: 100%; max-height: 92vh;
-        border-radius: var(--wm-radius) var(--wm-radius) 0 0;
-        transform: translateY(100%);
-    }
-    .wm-modal:not([data-wm-fullscreen="true"])[data-wm-state="open"] .wm-panel { transform: translateY(0); }
-}
-
-/* THEMES */
 [data-wire-theme="soft"] { --wire-radius: 12px; --wm-overlay-bg: rgba(15, 23, 42, 0.35); }
 [data-wire-theme="soft"] .wm-panel {
     background: color-mix(in srgb, var(--wire-accent) 10%, var(--wire-bg));
@@ -509,6 +343,8 @@ code { font-family: ui-monospace, "JetBrains Mono", "Fira Code", "Courier New", 
             <button class="btn" onclick="Wiremodal.open('demo-no-header')">No header</button>
             <button class="btn" onclick="Wiremodal.open('demo-no-footer')">No footer</button>
             <button class="btn" onclick="Wiremodal.open('demo-fullscreen')">Fullscreen</button>
+            <button class="btn" onclick="Wiremodal.open('demo-nav')">Side nav</button>
+            <button class="btn" onclick="Wiremodal.open('demo-nav'); Wiremodal.open('demo-stacked')">Two at once</button>
         </div>
     </div>
 
@@ -552,222 +388,197 @@ $this-&gt;dispatch('close-wiremodal', 'confirm-delete');</code></pre>
 <!-- ============================ DEMO MODALS ============================ -->
 
 <div class="wm-modal" data-wire-component="modal" data-wm-name="demo-confirm" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="wm-overlay" data-wm-dismiss></div>
     <div class="wm-panel">
-        <div class="wm-header">
-            <h3 class="wm-title">¿Eliminar registro?</h3>
-            <button class="wm-close" data-wm-dismiss aria-label="Close">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <div class="wm-body">
-            <p>Esta acción no se puede deshacer. El registro y todos sus datos asociados se eliminarán permanentemente.</p>
-        </div>
-        <div class="wm-footer">
-            <div class="footer-actions">
-                <button class="btn" data-wm-dismiss>Cancelar</button>
-                <button class="btn danger" data-wm-dismiss>Eliminar</button>
+        <div class="wm-content">
+            <div class="wm-header">
+                <h3 class="wm-title">¿Eliminar registro?</h3>
+                <button class="wm-close" data-wm-dismiss aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="wm-body">
+                <p>Esta acción no se puede deshacer. El registro y todos sus datos asociados se eliminarán permanentemente.</p>
+            </div>
+            <div class="wm-footer">
+                <div class="footer-actions">
+                    <button class="btn" data-wm-dismiss>Cancelar</button>
+                    <button class="btn danger" data-wm-dismiss>Eliminar</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="wm-modal" data-wire-component="modal" data-wm-name="demo-form" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="wm-overlay" data-wm-dismiss></div>
     <div class="wm-panel">
-        <div class="wm-header">
-            <h3 class="wm-title">Nueva categoría</h3>
-            <button class="wm-close" data-wm-dismiss aria-label="Close">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <div class="wm-body">
-            <div class="field">
-                <label for="cat-name">Nombre</label>
-                <input id="cat-name" type="text" placeholder="ej. Marketing">
+        <div class="wm-content">
+            <div class="wm-header">
+                <h3 class="wm-title">Nueva categoría</h3>
+                <button class="wm-close" data-wm-dismiss aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
             </div>
-            <div class="field">
-                <label for="cat-color">Color</label>
-                <input id="cat-color" type="text" placeholder="#10a37f">
+            <div class="wm-body">
+                <div class="field">
+                    <label for="cat-name">Nombre</label>
+                    <input id="cat-name" type="text" placeholder="ej. Marketing">
+                </div>
+                <div class="field">
+                    <label for="cat-color">Color</label>
+                    <input id="cat-color" type="text" placeholder="#10a37f">
+                </div>
             </div>
-        </div>
-        <div class="wm-footer">
-            <div class="footer-actions">
-                <button class="btn" data-wm-dismiss>Cancelar</button>
-                <button class="btn primary" data-wm-dismiss>Crear</button>
+            <div class="wm-footer">
+                <div class="footer-actions">
+                    <button class="btn" data-wm-dismiss>Cancelar</button>
+                    <button class="btn primary" data-wm-dismiss>Crear</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="wm-modal" data-wire-component="modal" data-wm-name="demo-long" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="wm-overlay" data-wm-dismiss></div>
     <div class="wm-panel">
-        <div class="wm-header">
-            <h3 class="wm-title">Términos del servicio</h3>
-            <button class="wm-close" data-wm-dismiss aria-label="Close">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <div class="wm-body long-content">
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-            <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
-            <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
-            <p>Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-            <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos.</p>
-            <p>Qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.</p>
-            <p>Consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat.</p>
-            <p>Voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.</p>
-            <p>Nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse.</p>
-            <p>Quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-        </div>
-        <div class="wm-footer">
-            <div class="footer-actions">
-                <button class="btn" data-wm-dismiss>Cerrar</button>
-                <button class="btn primary" data-wm-dismiss>Aceptar</button>
+        <div class="wm-content">
+            <div class="wm-header">
+                <h3 class="wm-title">Términos del servicio</h3>
+                <button class="wm-close" data-wm-dismiss aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="wm-body long-content">
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+                <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+                <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.</p>
+                <p>Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos.</p>
+                <p>Qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.</p>
+                <p>Consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat.</p>
+                <p>Voluptatem. Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam.</p>
+                <p>Nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse.</p>
+                <p>Quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
+            </div>
+            <div class="wm-footer">
+                <div class="footer-actions">
+                    <button class="btn" data-wm-dismiss>Cerrar</button>
+                    <button class="btn primary" data-wm-dismiss>Aceptar</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="wm-modal" data-wire-component="modal" data-wm-name="demo-no-header" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="wm-overlay" data-wm-dismiss></div>
     <div class="wm-panel">
-        <div class="wm-body">
-            <p style="font-size:18px;font-weight:600;margin:0 0 8px;">Modal sin cabecera</p>
-            <p style="margin:0 0 16px;color:var(--wm-text-muted)">Útil para confirmaciones rápidas o anuncios donde no necesitas separar título y cuerpo.</p>
-            <div class="footer-actions">
-                <button class="btn" data-wm-dismiss>Cerrar</button>
+        <div class="wm-content">
+            <div class="wm-body">
+                <p style="font-size:18px;font-weight:600;margin:0 0 8px;">Modal sin cabecera</p>
+                <p style="margin:0 0 16px;color:var(--wm-text-muted)">Útil para confirmaciones rápidas o anuncios donde no necesitas separar título y cuerpo.</p>
+                <div class="footer-actions">
+                    <button class="btn" data-wm-dismiss>Cerrar</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="wm-modal" data-wire-component="modal" data-wm-name="demo-no-footer" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="wm-overlay" data-wm-dismiss></div>
     <div class="wm-panel">
-        <div class="wm-header">
-            <h3 class="wm-title">Información</h3>
-            <button class="wm-close" data-wm-dismiss aria-label="Close">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <div class="wm-body">
-            <p style="margin:0">Modal sin pie. La X y el click fuera se encargan de cerrar.</p>
-        </div>
-    </div>
-</div>
-
-<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-fullscreen" data-wm-size="md" data-wm-fullscreen="true" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="wm-overlay" data-wm-dismiss></div>
-    <div class="wm-panel">
-        <div class="wm-header">
-            <h3 class="wm-title">Modal a pantalla completa</h3>
-            <button class="wm-close" data-wm-dismiss aria-label="Close">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-        </div>
-        <div class="wm-body">
-            <p>Útil para builders, editores, wizards multi-paso. El prop <code>fullscreen</code> en Blade activa este modo.</p>
-        </div>
-        <div class="wm-footer">
-            <div class="footer-actions">
-                <button class="btn" data-wm-dismiss>Cerrar</button>
+        <div class="wm-content">
+            <div class="wm-header">
+                <h3 class="wm-title">Información</h3>
+                <button class="wm-close" data-wm-dismiss aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="wm-body">
+                <p style="margin:0">Modal sin pie. La X y el click fuera se encargan de cerrar.</p>
             </div>
         </div>
     </div>
 </div>
 
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-fullscreen" data-wm-size="md" data-wm-fullscreen="true" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-panel">
+        <div class="wm-content">
+            <div class="wm-header">
+                <h3 class="wm-title">Modal a pantalla completa</h3>
+                <button class="wm-close" data-wm-dismiss aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="wm-body">
+                <p>Útil para builders, editores, wizards multi-paso. El prop <code>fullscreen</code> en Blade activa este modo.</p>
+            </div>
+            <div class="wm-footer">
+                <div class="footer-actions">
+                    <button class="btn" data-wm-dismiss>Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Nav lateral: una columna fija de secciones, fuera del scroll del cuerpo. Y desde
+     aqui se abre otra modal encima, para ver la pila: esta esconde su panel y
+     conserva su fundido, que es el unico de la pagina. -->
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-nav" data-wm-size="5xl" data-wm-nav="true" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-panel">
+    <nav class="wm-nav" aria-label="Sections">
+        <div class="wm-nav-group">
+            <span class="wm-nav-label">Account</span>
+            <button type="button" class="wm-nav-item" aria-current="page"><span>General</span></button>
+            <button type="button" class="wm-nav-item"><span>Security</span></button>
+            <button type="button" class="wm-nav-item"><span>Privacy</span></button>
+        </div>
+        <div class="wm-nav-group">
+            <span class="wm-nav-label">Subscription</span>
+            <button type="button" class="wm-nav-item"><span>Plan</span></button>
+            <button type="button" class="wm-nav-item"><span>Usage</span></button>
+            <button type="button" class="wm-nav-item"><span>Invoices</span></button>
+        </div>
+    </nav>
+    <div class="wm-content">
+        <div class="wm-header">
+            <h3 class="wm-title">Settings</h3>
+            <button class="wm-close" data-wm-dismiss aria-label="Close">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="wm-body">
+            <p>The nav runs the full height of the panel and sits outside the body's scroll, so the sections stay reachable however long this gets.</p>
+            <p style="margin-top:16px"><button class="btn primary" onclick="Wiremodal.open('demo-stacked')">Open a dialog over this one</button></p>
+        </div>
+    </div>
+    </div>
+</div>
+
+<div class="wm-modal" data-wire-component="modal" data-wm-name="demo-stacked" data-wm-size="md" data-wm-state="closed" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="wm-panel">
+        <div class="wm-content">
+            <div class="wm-header">
+                <h3 class="wm-title">On top</h3>
+                <button class="wm-close" data-wm-dismiss aria-label="Close">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div class="wm-body">
+                <p>The one underneath hid its panel and kept its backdrop: one backdrop, one panel, and the backdrop is the same element throughout, so nothing flashes. Close this and it comes back.</p>
+            </div>
+            <div class="wm-footer">
+                <div class="footer-actions">
+                    <button class="btn" data-wm-dismiss>Back</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="resources/js/wiremodal.js"></script>
 <script>
-/* =========================================================
-   wiremodal framework-agnostic controller (inlined)
-   ========================================================= */
-(function () {
-    'use strict';
-    const STATE_OPEN = 'open';
-    const STATE_CLOSED = 'closed';
-    const BODY_LOCK_CLASS = 'wm-no-scroll';
-    const focusReturn = new WeakMap();
-
-    function findModal(name) {
-        if (!name) return null;
-        try { return document.querySelector(`.wm-modal[data-wm-name="${CSS.escape(name)}"]`); }
-        catch (e) { return null; }
-    }
-    function focusables(modal) {
-        return Array.from(modal.querySelectorAll(
-            'a[href], button:not([disabled]):not([data-wm-dismiss]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
-        ));
-    }
-    function lockBodyIfNeeded() { document.body.classList.add(BODY_LOCK_CLASS); }
-    function unlockBodyIfNoneOpen() {
-        if (!document.querySelector('.wm-modal[data-wm-state="open"]')) {
-            document.body.classList.remove(BODY_LOCK_CLASS);
-        }
-    }
-    function setState(modal, state) {
-        if (!modal) return;
-        if (modal.getAttribute('data-wm-state') === state) return;
-        modal.setAttribute('data-wm-state', state);
-        modal.setAttribute('aria-hidden', state === STATE_CLOSED ? 'true' : 'false');
-        if (state === STATE_OPEN) {
-            focusReturn.set(modal, document.activeElement);
-            lockBodyIfNeeded();
-            setTimeout(() => { const f = focusables(modal)[0]; if (f) f.focus(); }, 60);
-        } else {
-            unlockBodyIfNoneOpen();
-            const prev = focusReturn.get(modal);
-            if (prev && typeof prev.focus === 'function') { try { prev.focus(); } catch (e) {} }
-        }
-    }
-    function open(name) { setState(findModal(name), STATE_OPEN); }
-    function close(name) { setState(findModal(name), STATE_CLOSED); }
-    function closeAll() {
-        document.querySelectorAll('.wm-modal[data-wm-state="open"]').forEach(m => setState(m, STATE_CLOSED));
-    }
-    function isOpen(name) { const m = findModal(name); return !!m && m.getAttribute('data-wm-state') === STATE_OPEN; }
-    function eventName(e) {
-        if (!e || e.detail === undefined || e.detail === null) return null;
-        if (typeof e.detail === 'string') return e.detail;
-        if (typeof e.detail === 'object' && e.detail.name) return e.detail.name;
-        return null;
-    }
-
-    window.addEventListener('open-wiremodal',  e => { const n = eventName(e); if (n) open(n); });
-    window.addEventListener('close-wiremodal', e => { const n = eventName(e); if (n) close(n); });
-    window.addEventListener('open-modal',  e => { const n = eventName(e); if (n) open(n); });
-    window.addEventListener('close-modal', e => { const n = eventName(e); if (n) close(n); });
-
-    document.addEventListener('click', (e) => {
-        const dismiss = e.target.closest('[data-wm-dismiss]');
-        if (!dismiss) return;
-        const modal = dismiss.closest('.wm-modal');
-        if (!modal || modal.getAttribute('data-wm-state') !== STATE_OPEN) return;
-        const name = modal.getAttribute('data-wm-name');
-        if (name) close(name);
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') return;
-        const opens = document.querySelectorAll('.wm-modal[data-wm-state="open"]');
-        if (!opens.length) return;
-        close(opens[opens.length - 1].getAttribute('data-wm-name'));
-    });
-    document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Tab') return;
-        const opens = document.querySelectorAll('.wm-modal[data-wm-state="open"]');
-        if (!opens.length) return;
-        const top = opens[opens.length - 1];
-        const items = focusables(top);
-        if (!items.length) return;
-        const first = items[0]; const last = items[items.length - 1];
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    });
-
-    window.Wiremodal = Object.freeze({ open, close, closeAll, isOpen });
-})();
 
 /* =========================================================
    PAGE controls (theme/mode/size)
