@@ -101,8 +101,30 @@
     }
 
     function syncBackdrop() {
-        const open = document.querySelectorAll('.wm-modal[data-wm-state="open"]').length;
-        backdrop().setAttribute('data-wm-state', open ? STATE_OPEN : STATE_CLOSED);
+        const top = topMostOpen();
+        const el = backdrop();
+
+        el.setAttribute('data-wm-state', top ? STATE_OPEN : STATE_CLOSED);
+
+        // El tema viaja con el fundido. Vive en el body, asi que solo hereda lo que
+        // declare el <html>: una modal con su propio tema en un envoltorio (lo
+        // normal cuando una pantalla concreta se sale del tema de la aplicacion) se
+        // quedaba con el fundido del documento, de otro color que ella.
+        const theme = top && top.closest('[data-wire-theme]');
+
+        if (theme) {
+            el.setAttribute('data-wire-theme', theme.getAttribute('data-wire-theme'));
+        } else {
+            el.removeAttribute('data-wire-theme');
+        }
+
+        const mode = top && top.closest('[data-wire-theme-mode]');
+
+        if (mode) {
+            el.setAttribute('data-wire-theme-mode', mode.getAttribute('data-wire-theme-mode'));
+        } else {
+            el.removeAttribute('data-wire-theme-mode');
+        }
     }
 
     // Returns true if the close happened, false if cancelled by beforeclose handler.
