@@ -53,7 +53,11 @@
     /* Side nav (optional `nav` slot): a fixed column that stays put while the
        body scrolls. Sized in rem so it follows the user's font size. */
     --wm-nav-width: 12rem;
-    --wm-nav-bg: color-mix(in srgb, var(--wm-text) 3%, var(--wm-bg));
+    /* Transparente a proposito: hay temas que pintan el panel con un gradiente o
+       con un fondo traslucido (soft, gradient, synthwave, glass), y un color
+       calculado desde --wm-bg les dejaba la columna como un parche encima. El
+       borde ya la separa; el tema que quiera contraste pone el suyo, como studio. */
+    --wm-nav-bg: transparent;
     --wm-nav-padding: 12px;
     --wm-nav-gap: 1px;
     --wm-nav-group-gap: 14px;
@@ -64,12 +68,16 @@
     --wm-nav-label-transform: none;
     --wm-nav-item-size: 13px;
     --wm-nav-item-height: 32px;
-    --wm-nav-search-bg: var(--wm-bg);
+    --wm-nav-search-bg: transparent;
     --wm-nav-search-border: var(--wm-border-color);
     /* The panel keeps a fixed height when it has a nav: the sections column must
        not grow and shrink as you move between sections. */
     --wm-nav-panel-height: min(calc(100dvh - 2rem), 44rem);
-    --wm-nav-item-color: var(--wm-text-muted);
+    /* No `--wm-text-muted`: hay temas donde el apagado queda a un paso del fondo
+       (en `neon` daba 1.1 de contraste, o sea ilegible). Mezclando el color de
+       texto con lo que haya debajo, el resultado baja de tono sin perder la
+       legibilidad en ningun tema, claro u oscuro. */
+    --wm-nav-item-color: color-mix(in srgb, var(--wm-text) 78%, transparent);
     --wm-nav-item-weight: 500;
     --wm-nav-item-active-weight: 600;
     --wm-nav-item-hover-bg: color-mix(in srgb, var(--wm-text) 6%, transparent);
@@ -658,6 +666,10 @@
     --wm-close-color: rgba(255, 255, 255, 0.7);
     --wm-close-hover-color: #ffffff;
     --wm-title-color: #ffffff;
+
+    /* Texto pleno en la nav: sobre su degradado, el apagado se queda en 3.5 de
+       contraste (medido sobre el pixel renderizado, no sobre el token). */
+    --wm-nav-item-color: var(--wm-text);
 }
 [data-wire-theme="gradient"] .wm-panel {
     background: linear-gradient(135deg,
