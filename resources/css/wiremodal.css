@@ -504,8 +504,59 @@
 }
 
 /* =========================================================
-   THEME: flat (default, no override needed - base in :root)
+   THEME: flat (the base, and selectable)
+   The values are the ones in :root, repeated here on purpose. Without this,
+   `flat` is the ABSENCE of a theme, so a document themed `studio` has no way to
+   ask for the base look on one modal — the tokens are already overridden on the
+   same element that :root matches. Wrapping that modal in
+   `[data-wire-theme="flat"]` is what makes it askable.
    ========================================================= */
+[data-wire-theme="flat"] {
+    --wire-bg: #ffffff;
+    --wire-bg-elevated: #ffffff;
+    --wire-text: #0f172a;
+    --wire-text-muted: #64748b;
+    --wire-border: rgba(15, 23, 42, 0.08);
+    --wire-border-strong: rgba(15, 23, 42, 0.16);
+    --wire-accent: #2563eb;
+    --wire-radius: 10px;
+    --wire-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
+    --wire-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    /* Los --wm-* derivados, repetidos tambien. `--wm-radius: var(--wire-radius)` se
+       declara en :root, asi que se resuelve con el --wire-radius de :root y baja ya
+       calculado: redeclarar solo los --wire-* en un descendiente llega tarde. Esto
+       es lo que hace que el tema funcione tambien puesto en un envoltorio y no solo
+       en el <html>. */
+    --wm-bg: #ffffff;
+    --wm-text: #0f172a;
+    --wm-text-muted: #64748b;
+    --wm-border-color: rgba(15, 23, 42, 0.08);
+    --wm-radius: 10px;
+    --wm-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --wm-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 4px 12px rgba(15, 23, 42, 0.08);
+    --wm-divider: rgba(15, 23, 42, 0.08);
+    --wm-title-color: #0f172a;
+    --wm-close-color: #64748b;
+    --wm-close-hover-color: #0f172a;
+
+    --wm-overlay-bg: rgba(15, 23, 42, 0.55);
+    --wm-title-size: 18px;
+    --wm-title-weight: 700;
+    --wm-padding-header: 20px 28px;
+    --wm-padding-body: 32px;
+    --wm-padding-footer: 16px 28px;
+
+    --wm-nav-padding: 12px;
+    --wm-nav-bg: color-mix(in srgb, var(--wm-text) 3%, var(--wm-bg));
+    --wm-nav-item-hover-bg: color-mix(in srgb, var(--wm-text) 6%, transparent);
+    --wm-nav-item-active-bg: color-mix(in srgb, var(--wm-text) 10%, transparent);
+    --wm-nav-label-color: var(--wm-text-muted);
+    --wm-nav-search-border: var(--wm-border-color);
+    --wm-scrollbar-thumb: color-mix(in srgb, var(--wm-text) 22%, transparent);
+    --wm-scrollbar-thumb-hover: color-mix(in srgb, var(--wm-text) 45%, transparent);
+}
+
 
 /* =========================================================
    THEME: soft (tinted background, accent-mixed border)
