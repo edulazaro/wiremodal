@@ -4,7 +4,7 @@
 
 Framework-agnostic modal/dialog system for Laravel, Livewire and Alpine. Pure CSS themes, custom-theme via CSS variables, drop-in API. Sibling of [wiretoast](https://github.com/edulazaro/wiretoast).
 
-12 themes · 11 sizes · 0 runtime deps · works with or without Livewire/Alpine.
+13 themes · 11 sizes · 0 runtime deps · works with or without Livewire/Alpine.
 
 ## Install
 
@@ -180,6 +180,7 @@ Themes are applied via `[data-wire-theme="..."]` on any ancestor (commonly `<htm
 | `megaflow` | Flowbite-style: clean white card |
 | `brutalist` | 1px black border, hard offset shadow, hover lift |
 | `toxic` | Swamp dark, lime accent; dark only |
+| `magic` | Midnight indigo, gold accent, serif title; dark only |
 
 ```html
 <html data-wire-theme="claude" data-wire-theme-mode="light">

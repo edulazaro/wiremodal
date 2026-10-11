@@ -1006,3 +1006,40 @@
     --wm-title-color: var(--wire-accent);
     --wm-divider: rgba(163, 230, 53, 0.14);
 }
+
+/* =========================================================
+   THEME: magic (midnight indigo panel, gold accent, parchment text)
+   Dark always, like neon and toxic: a night sky has no light mode to fall into.
+   ========================================================= */
+[data-wire-theme="magic"] {
+    --wire-bg: #1C1840;
+    --wire-bg-elevated: #221D4C;
+    --wire-accent: #C9A55C;
+    --wire-text: #EDE4D3;
+    --wire-text-muted: rgba(237, 228, 211, 0.6);
+    --wire-border: rgba(201, 165, 92, 0.22);
+    --wire-border-strong: rgba(201, 165, 92, 0.45);
+    --wire-radius: 10px;
+    --wire-shadow: 0 24px 60px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(201, 165, 92, 0.1);
+
+    /* The deepest of the three indigos, so what is behind the modal reads as the same night
+       and not as a grey wash over it. */
+    --wm-overlay-bg: rgba(19, 15, 43, 0.78);
+    --wm-title-color: var(--wire-accent);
+    --wm-divider: rgba(201, 165, 92, 0.16);
+
+    --wm-nav-item-active-bg: rgba(201, 165, 92, 0.12);
+    --wm-nav-item-active-color: var(--wire-accent);
+    --wm-nav-search-bg: rgba(0, 0, 0, 0.22);
+    --wm-nav-search-border: var(--wire-border);
+    --wm-scrollbar-thumb: rgba(201, 165, 92, 0.25);
+    --wm-scrollbar-thumb-hover: rgba(201, 165, 92, 0.4);
+}
+
+/* A serif title over a sans body, which is the one thing this theme does that the palette
+   alone cannot say. Named families first and generics after: a theme cannot ship a font, so
+   whoever has none still gets the serif-over-sans contrast. */
+[data-wire-theme="magic"] .wm-title {
+    font-family: "IM Fell English", "Iowan Old Style", Palatino, Georgia, serif;
+    letter-spacing: 0.01em;
+}
