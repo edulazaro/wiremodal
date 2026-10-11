@@ -457,6 +457,19 @@
         flex-direction: column;
         height: auto;
     }
+    /* The nav is the panel's first child, which is what puts it to the left of
+       the content on a wide screen. Stacked on a phone that would place it ABOVE
+       the title and the close button, as if it belonged to the window rather than
+       to the dialog. `display: contents` lifts the header, body and footer into
+       the panel's own flex line so the four can be ordered: title first, then the
+       sections, then what you came to read. */
+    .wm-modal[data-wm-nav="true"] .wm-content {
+        display: contents;
+    }
+    .wm-modal[data-wm-nav="true"] .wm-header { order: 1; }
+    .wm-modal[data-wm-nav="true"] .wm-nav    { order: 2; }
+    .wm-modal[data-wm-nav="true"] .wm-body   { order: 3; }
+    .wm-modal[data-wm-nav="true"] .wm-footer { order: 4; }
     .wm-modal[data-wm-nav="true"] .wm-nav:has(.wm-nav-list) {
         overflow: visible;
     }
