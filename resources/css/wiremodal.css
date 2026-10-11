@@ -152,9 +152,13 @@
 }
 /* Y pierde el transform, que no es un detalle: un ancestro transformado es el
    contenedor de los `position: fixed` que lleva dentro, asi que el overlay de la
-   modal interior cubria solo el area de este panel en vez de la pagina entera. */
+   modal interior cubria solo el area de este panel en vez de la pagina entera.
+   `transition: none` es la otra mitad: el panel anima su transform, y un transform
+   a medio animar sigue siendo contenedor, asi que el fundido de la interior nacia
+   del tamanyo del panel y saltaba a la pagina entera al terminar. */
 .wm-modal[data-wm-state="open"]:has(.wm-modal[data-wm-state="open"]) > .wm-panel {
     transform: none;
+    transition: none;
 }
 .wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"],
 .wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"] > .wm-panel,
