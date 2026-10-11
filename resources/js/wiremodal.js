@@ -83,6 +83,15 @@
         modal.setAttribute('aria-hidden', state === STATE_CLOSED ? 'true' : 'false');
 
         if (state === STATE_OPEN) {
+            // A modal opened over another hides the one underneath instead of stacking
+            // on top of it. Two dialogs at once are two sets of buttons for one
+            // decision, and the one below is unreachable anyway; hiding it also means
+            // the z-index of whatever else is on the page stops mattering.
+            document.querySelectorAll('.wm-modal[data-wm-state="open"]').forEach(other => {
+                if (other !== modal) other.setAttribute('data-wm-covered', 'true');
+            });
+            modal.removeAttribute('data-wm-covered');
+
             focusReturn.set(modal, document.activeElement);
             lockBodyIfNeeded();
             setTimeout(() => {
@@ -95,6 +104,12 @@
             modal.dispatchEvent(new CustomEvent('wiremodal:opened', { bubbles: true, detail }));
             window.dispatchEvent(new CustomEvent('wiremodal:opened', { detail }));
         } else {
+            // Closing the top one brings back the last that was covered by it.
+            modal.removeAttribute('data-wm-covered');
+            const covered = Array.from(document.querySelectorAll('.wm-modal[data-wm-covered="true"]'));
+            const last = covered[covered.length - 1];
+            if (last) last.removeAttribute('data-wm-covered');
+
             unlockBodyIfNoneOpen();
             const previousFocus = focusReturn.get(modal);
             if (previousFocus && typeof previousFocus.focus === 'function') {
