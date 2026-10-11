@@ -141,6 +141,21 @@
     opacity: 1;
 }
 
+/* Una modal ABIERTA que contiene otra abierta se aparta sola, sin que el JS tenga
+   que enterarse: oculta su panel y su overlay, y la de dentro recupera la
+   visibilidad explicitamente, porque `visibility` se hereda. Es el caso de un
+   dialogo que se abre desde dentro de otro, y asi no quedan dos marcos, dos
+   cabeceras y dos juegos de botones para una sola decision. */
+.wm-modal[data-wm-state="open"]:has(.wm-modal[data-wm-state="open"]) > .wm-panel,
+.wm-modal[data-wm-state="open"]:has(.wm-modal[data-wm-state="open"]) > .wm-overlay {
+    visibility: hidden;
+}
+.wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"],
+.wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"] > .wm-panel,
+.wm-modal[data-wm-state="open"] .wm-modal[data-wm-state="open"] > .wm-overlay {
+    visibility: visible;
+}
+
 /* Cubierta por otra abierta encima: se aparta y vuelve cuando aquella se cierra.
    El JS pone y quita el atributo; esta regla gana a la de arriba por tener un
    atributo mas, sin necesidad de !important. */
